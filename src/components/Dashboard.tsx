@@ -1,11 +1,13 @@
 "use client";
 
-// Main dashboard with stats and recent expenses
+// Main dashboard with stats and recent expenses - Fintech-inspired design
 
 import React from "react";
-import { DollarSign, TrendingUp, ShoppingBag, Calendar, Plus } from "lucide-react";
+import { motion } from "framer-motion";
+import { DollarSign, TrendingUp, ShoppingBag, Calendar, Plus, TrendingDown } from "lucide-react";
 import { StatCard } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { CardSkeleton } from "@/components/ui/Skeleton";
 import { Expense, AnalyticsSummary, CATEGORY_COLORS, CATEGORY_ICONS } from "@/lib/types";
 import { formatCurrency, formatDate, getCurrentMonth, getMonthFromDate } from "@/lib/utils";
 
@@ -49,10 +51,7 @@ export function Dashboard({
       <div className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-white rounded-2xl border border-slate-100 p-6 animate-pulse">
-              <div className="h-4 bg-slate-200 rounded w-2/3 mb-3" />
-              <div className="h-7 bg-slate-200 rounded w-1/2" />
-            </div>
+            <CardSkeleton key={i} />
           ))}
         </div>
       </div>
@@ -61,153 +60,237 @@ export function Dashboard({
 
   return (
     <div className="space-y-6">
-      {/* Welcome banner */}
-      <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-6 text-white">
-        <div className="flex items-center justify-between">
+      {/* Welcome banner with gradient */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="relative overflow-hidden rounded-2xl gradient-primary p-6 lg:p-8"
+      >
+        {/* Decorative circles */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+        
+        <div className="relative flex items-center justify-between">
           <div>
-            <p className="text-emerald-100 text-sm font-medium">This Month&apos;s Spending</p>
-            <p className="text-4xl font-bold mt-1">{formatCurrency(thisMonthTotal)}</p>
+            <p className="text-teal-100 text-sm font-medium">This Month&apos;s Spending</p>
+            <motion.p 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-4xl lg:text-5xl font-bold mt-2 text-white"
+            >
+              {formatCurrency(thisMonthTotal)}
+            </motion.p>
             {lastMonthTotal > 0 && (
-              <p className="text-emerald-100 text-sm mt-2">
-                {monthlyChange >= 0 ? "↑" : "↓"} {Math.abs(monthlyChange)}% vs last month
-              </p>
+              <motion.p 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="text-teal-100 text-sm mt-3 flex items-center gap-2"
+              >
+                {monthlyChange >= 0 ? (
+                  <TrendingUp className="w-4 h-4" />
+                ) : (
+                  <TrendingDown className="w-4 h-4" />
+                )}
+                <span className={monthlyChange >= 0 ? "text-red-200" : "text-green-200"}>
+                  {monthlyChange >= 0 ? "↑" : "↓"} {Math.abs(monthlyChange)}% vs last month
+                </span>
+              </motion.p>
             )}
           </div>
           <div className="hidden sm:block">
             <Button
               variant="secondary"
               onClick={onAddExpense}
-              className="bg-white/20 border-white/30 text-white hover:bg-white/30"
+              className="bg-white/20 border-white/30 text-white hover:bg-white/30 backdrop-blur-sm"
             >
               <Plus size={16} />
               Add Expense
             </Button>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Stats grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Total Expenses"
-          value={formatCurrency(analytics?.totalAmount || 0)}
-          subtitle="All time"
-          icon={<DollarSign size={20} />}
-          color="green"
-        />
-        <StatCard
-          title="This Month"
-          value={formatCurrency(thisMonthTotal)}
-          subtitle={`${thisMonthExpenses.length} transactions`}
-          icon={<Calendar size={20} />}
-          color="blue"
-          trend={
-            lastMonthTotal > 0
-              ? { value: monthlyChange, label: "vs last month" }
-              : undefined
-          }
-        />
-        <StatCard
-          title="Avg. Expense"
-          value={formatCurrency(analytics?.averageExpense || 0)}
-          subtitle="Per transaction"
-          icon={<TrendingUp size={20} />}
-          color="purple"
-        />
-        <StatCard
-          title="Total Transactions"
-          value={String(analytics?.totalExpenses || 0)}
-          subtitle="All time"
-          icon={<ShoppingBag size={20} />}
-          color="orange"
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <StatCard
+            title="Total Expenses"
+            value={formatCurrency(analytics?.totalAmount || 0)}
+            subtitle="All time"
+            icon={<DollarSign size={20} />}
+            color="green"
+          />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+        >
+          <StatCard
+            title="This Month"
+            value={formatCurrency(thisMonthTotal)}
+            subtitle={`${thisMonthExpenses.length} transactions`}
+            icon={<Calendar size={20} />}
+            color="blue"
+            trend={
+              lastMonthTotal > 0
+                ? { value: monthlyChange, label: "vs last month" }
+                : undefined
+            }
+          />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <StatCard
+            title="Avg. Expense"
+            value={formatCurrency(analytics?.averageExpense || 0)}
+            subtitle="Per transaction"
+            icon={<TrendingUp size={20} />}
+            color="purple"
+          />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+        >
+          <StatCard
+            title="Total Transactions"
+            value={String(analytics?.totalExpenses || 0)}
+            subtitle="All time"
+            icon={<ShoppingBag size={20} />}
+            color="orange"
+          />
+        </motion.div>
       </div>
 
       {/* Recent expenses + top categories */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent expenses */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm">
-          <div className="flex items-center justify-between p-6 border-b border-slate-50">
-            <div>
-              <h3 className="font-semibold text-slate-800">Recent Expenses</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Your latest transactions</p>
-            </div>
-            <Button variant="ghost" size="sm" onClick={onViewExpenses}>
-              View all
-            </Button>
-          </div>
-          {recentExpenses.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <p className="text-3xl mb-3">💸</p>
-              <p className="text-slate-600 font-medium">No expenses yet</p>
-              <p className="text-slate-400 text-sm mt-1">Start tracking your spending</p>
-              <Button variant="primary" size="sm" className="mt-4" onClick={onAddExpense}>
-                <Plus size={14} />
-                Add First Expense
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="lg:col-span-2"
+        >
+          <div className="glass card overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-slate-200/50 dark:border-slate-700/50">
+              <div>
+                <h3 className="font-semibold text-slate-800 dark:text-slate-100">Recent Expenses</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Your latest transactions</p>
+              </div>
+              <Button variant="ghost" size="sm" onClick={onViewExpenses}>
+                View all
               </Button>
             </div>
-          ) : (
-            <div className="divide-y divide-slate-50">
-              {recentExpenses.map((expense) => (
-                <div key={expense.id} className="flex items-center gap-4 px-6 py-3.5">
-                  <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center text-base flex-shrink-0"
-                    style={{ backgroundColor: `${CATEGORY_COLORS[expense.category]}15` }}
-                  >
-                    {CATEGORY_ICONS[expense.category]}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-800 truncate">{expense.title}</p>
-                    <p className="text-xs text-slate-400">{formatDate(expense.date)}</p>
-                  </div>
-                  <p className="text-sm font-semibold text-slate-800 flex-shrink-0">
-                    {formatCurrency(expense.amount)}
-                  </p>
+            {recentExpenses.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
+                  <span className="text-3xl">💸</span>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+                <p className="text-slate-600 dark:text-slate-300 font-medium">No expenses yet</p>
+                <p className="text-slate-400 text-sm mt-1">Start tracking your spending</p>
+                <Button variant="primary" size="sm" className="mt-4" onClick={onAddExpense}>
+                  <Plus size={14} />
+                  Add First Expense
+                </Button>
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                {recentExpenses.map((expense, index) => (
+                  <motion.div
+                    key={expense.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.05 * index }}
+                    className="flex items-center gap-4 px-6 py-3.5 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors"
+                  >
+                    <div
+                      className="w-10 h-10 rounded-xl flex items-center justify-center text-base flex-shrink-0"
+                      style={{ backgroundColor: `${CATEGORY_COLORS[expense.category]}20` }}
+                    >
+                      <span style={{ color: CATEGORY_COLORS[expense.category] }}>
+                        {CATEGORY_ICONS[expense.category]}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-slate-800 dark:text-slate-100 truncate">{expense.title}</p>
+                      <p className="text-xs text-slate-400 dark:text-slate-500">{formatDate(expense.date)}</p>
+                    </div>
+                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 flex-shrink-0">
+                      {formatCurrency(expense.amount)}
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+        </motion.div>
 
         {/* Top categories */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm">
-          <div className="p-6 border-b border-slate-50">
-            <h3 className="font-semibold text-slate-800">Top Categories</h3>
-            <p className="text-xs text-slate-500 mt-0.5">Spending by category</p>
-          </div>
-          {!analytics || analytics.categoryData.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <p className="text-3xl mb-3">📊</p>
-              <p className="text-slate-500 text-sm">No data yet</p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+        >
+          <div className="glass card h-full">
+            <div className="p-6 border-b border-slate-200/50 dark:border-slate-700/50">
+              <h3 className="font-semibold text-slate-800 dark:text-slate-100">Top Categories</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Spending by category</p>
             </div>
-          ) : (
-            <div className="p-6 space-y-4">
-              {analytics.categoryData.slice(0, 5).map((cat) => (
-                <div key={cat.category}>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">{CATEGORY_ICONS[cat.category]}</span>
-                      <span className="text-sm font-medium text-slate-700">{cat.category}</span>
-                    </div>
-                    <span className="text-sm font-semibold text-slate-800">
-                      {formatCurrency(cat.total)}
-                    </span>
-                  </div>
-                  <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all duration-500"
-                      style={{
-                        width: `${cat.percentage}%`,
-                        backgroundColor: CATEGORY_COLORS[cat.category],
-                      }}
-                    />
-                  </div>
-                  <p className="text-xs text-slate-400 mt-1">{cat.percentage.toFixed(1)}%</p>
+            {!analytics || analytics.categoryData.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
+                  <span className="text-3xl">📊</span>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+                <p className="text-slate-500 dark:text-slate-400 text-sm">No data yet</p>
+              </div>
+            ) : (
+              <div className="p-6 space-y-4">
+                {analytics.categoryData.slice(0, 5).map((cat, index) => (
+                  <motion.div
+                    key={cat.category}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.05 * index }}
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">{CATEGORY_ICONS[cat.category]}</span>
+                        <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{cat.category}</span>
+                      </div>
+                      <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                        {formatCurrency(cat.total)}
+                      </span>
+                    </div>
+                    <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${cat.percentage}%` }}
+                        transition={{ duration: 0.5, delay: 0.1 * index }}
+                        className="h-full rounded-full"
+                        style={{
+                          backgroundColor: CATEGORY_COLORS[cat.category],
+                        }}
+                      />
+                    </div>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{cat.percentage.toFixed(1)}%</p>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+        </motion.div>
       </div>
     </div>
   );
