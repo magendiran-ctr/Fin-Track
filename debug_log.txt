@@ -1,0 +1,35 @@
+prisma:cli:bin Failed to initialize the command state: Error: ENOENT: no such file or directory, open 'C:\Users\Magendiran\AppData\Roaming\prisma-nodejs\Config\commands.json' +2588ms
+prisma:config:loadConfigFromFile Config file loaded in 183.42ms +1872ms
+prisma:config:loadConfigFromFile No config file found in the current working directory C:\Users\Magendiran\Desktop\check\expense +1ms
+prisma:engines binaries to download schema-engine +2766ms
+prisma:getSchema Reading schema from single file C:\Users\Magendiran\Desktop\check\expense\test.prisma +192ms
+prisma:getSchema Reading schema from single file C:\Users\Magendiran\Desktop\check\expense\test.prisma +1ms
+prisma:getConfig Using getConfig Wasm +35ms
+prisma:cli:checkpoint Error from tryToReadDataFromSchema() while processing the schema. This is not a fatal error. It will continue without the processed data. +21ms
+prisma:cli:checkpoint {
+  "name": "GetConfigError"
+} +0ms
+prisma:cli:checkpoint runCheckpointClientCheck(): Execution time for getting info: 60.94520000000011 ms +1ms
+prisma:getSchema Reading schema from single file C:\Users\Magendiran\Desktop\check\expense\test.prisma +105ms
+Prisma schema loaded from test.prisma.
+prisma:getConfig Using getConfig Wasm +5ms
+Error: GetConfigError: Prisma schema validation - (get-config wasm)
+Error code: P1012
+error: The datasource property `url` is no longer supported in schema files. Move connection URLs for Migrate to `prisma.config.ts` and pass either `adapter` for a direct database connection or `accelerateUrl` for Accelerate to the `PrismaClient` constructor. See https://pris.ly/d/config-datasource and https://pris.ly/d/prisma7-client-config
+  -->  test.prisma:7
+   | 
+ 6 |   provider = "mongodb"
+ 7 |   url      = "mongodb://localhost:27017/test_db"
+   | 
+
+Validation Error Count: 1
+[Context: getConfig]
+
+Prisma CLI Version : 7.4.1
+    at C:\Users\Magendiran\Desktop\check\expense\node_modules\prisma\build\index.js:203:1073
+    at e.with (C:\Users\Magendiran\Desktop\check\expense\node_modules\prisma\build\index.js:163:41041)
+    at Cy (C:\Users\Magendiran\Desktop\check\expense\node_modules\prisma\build\index.js:203:1043)
+    at oD (C:\Users\Magendiran\Desktop\check\expense\node_modules\prisma\build\index.js:222:1318)
+    at e.parse (C:\Users\Magendiran\Desktop\check\expense\node_modules\prisma\build\index.js:4090:530)
+    at async e.parse (C:\Users\Magendiran\Desktop\check\expense\node_modules\prisma\build\index.js:1060:2319)
+    at async qir (C:\Users\Magendiran\Desktop\check\expense\node_modules\prisma\build\index.js:4927:136)

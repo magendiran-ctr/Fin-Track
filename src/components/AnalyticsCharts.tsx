@@ -109,7 +109,7 @@ export function AnalyticsCharts({ analytics, isLoading }: AnalyticsChartsProps) 
                   tick={{ fontSize: 11, fill: "#94a3b8" }}
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={(v) => `$${v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v}`}
+                  tickFormatter={(v) => `₹${v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v}`}
                 />
                 <Tooltip
                   contentStyle={{
@@ -165,8 +165,8 @@ export function AnalyticsCharts({ analytics, isLoading }: AnalyticsChartsProps) 
                       animationEasing="ease-out"
                     >
                       {categoryChartData.map((entry, index) => (
-                        <Cell 
-                          key={`cell-${index}`} 
+                        <Cell
+                          key={`cell-${index}`}
                           fill={entry.color}
                           strokeWidth={0}
                         />
@@ -200,9 +200,7 @@ export function AnalyticsCharts({ analytics, isLoading }: AnalyticsChartsProps) 
                       style={{ backgroundColor: item.color }}
                     />
                     <span className="text-xs text-slate-600 dark:text-slate-300 flex-1 truncate">{item.name}</span>
-                    <span className="text-xs font-medium text-slate-700 dark:text-slate-200">
-                      {item.percentage.toFixed(0)}%
-                    </span>
+                    {item.percentage.toFixed(0)}%
                   </motion.div>
                 ))}
               </div>

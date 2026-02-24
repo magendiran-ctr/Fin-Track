@@ -29,6 +29,12 @@ export default function HomePage() {
   const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  // Fix hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Get tab from URL params
   useEffect(() => {
@@ -102,7 +108,7 @@ export default function HomePage() {
   };
 
   // Show loading while checking auth
-  if (authLoading) {
+  if (authLoading || !mounted) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
         <motion.div
@@ -205,9 +211,9 @@ export default function HomePage() {
                         <h3 className="font-semibold text-slate-800 dark:text-slate-100 mb-4">Summary</h3>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                           {[
-                            { label: "Total Spent", value: `$${analytics.totalAmount.toFixed(2)}` },
+                            { label: "Total Spent", value: `₹${analytics.totalAmount.toFixed(2)}` },
                             { label: "Transactions", value: String(analytics.totalExpenses) },
-                            { label: "Avg. per Transaction", value: `$${analytics.averageExpense.toFixed(2)}` },
+                            { label: "Avg. per Transaction", value: `₹${analytics.averageExpense.toFixed(2)}` },
                             { label: "Top Category", value: analytics.topCategory || "N/A" },
                           ].map((stat, index) => (
                             <motion.div
@@ -242,13 +248,13 @@ export default function HomePage() {
                   <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
                     Manage your account preferences
                   </p>
-                  
+
                   <div className="space-y-4">
                     <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
                       <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Email</p>
                       <p className="text-slate-500 dark:text-slate-400">{user.email}</p>
                     </div>
-                    
+
                     <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
                       <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Plan</p>
                       <p className="text-slate-500 dark:text-slate-400">Free Plan</p>

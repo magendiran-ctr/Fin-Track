@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { ExpenseItemSkeleton } from "@/components/ui/Skeleton";
-import { Expense, EXPENSE_CATEGORIES, ExpenseCategory, CATEGORY_COLORS, CATEGORY_ICONS } from "@/lib/types";
+import { CategoryIcon } from "@/components/ui/CategoryIcon";
+import { Expense, EXPENSE_CATEGORIES, ExpenseCategory, CATEGORY_COLORS } from "@/lib/types";
 import { formatCurrency, formatDate, exportToCSV } from "@/lib/utils";
 import { expensesApi } from "@/lib/api-client";
 
@@ -74,7 +75,7 @@ export function ExpenseList({ expenses, onEdit, onAdd, onRefresh, isLoading }: E
     { value: "All", label: "All Categories" },
     ...EXPENSE_CATEGORIES.map((cat) => ({
       value: cat,
-      label: `${CATEGORY_ICONS[cat]} ${cat}`,
+      label: cat, // The icon will be handled separately in the dropdown if it was custom, but here it's labels
     })),
   ];
 
@@ -268,7 +269,7 @@ function ExpenseRow({ expense, onEdit, onDelete, isDeleting }: ExpenseRowProps) 
         className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
         style={{ backgroundColor: `${color}15` }}
       >
-        <span style={{ color }}>{CATEGORY_ICONS[expense.category]}</span>
+        <CategoryIcon category={expense.category} size={20} style={{ color }} />
       </motion.div>
 
       {/* Details */}

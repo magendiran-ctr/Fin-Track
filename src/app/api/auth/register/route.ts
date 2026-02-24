@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already exists
-    const existingUser = db.getUserByEmail(email.toLowerCase());
+    const existingUser = await db.getUserByEmail(email.toLowerCase());
     if (existingUser) {
       return NextResponse.json(
         { error: "Email already registered" },
@@ -54,27 +54,34 @@ export async function POST(request: NextRequest) {
       createdAt: new Date().toISOString(),
     };
 
-    db.createUser(user);
+    // Create user in database and get the actual created user (with DB ID)
+    console.log("Attempting to create user in DB:", { ...user, password: "[REDACTED]" });
+    const createdUser = await db.createUser(user);
 
-    // Generate JWT token
-    const token = await signToken({ userId: user.id, email: user.email });
+    // Generate JWT token with the REAL database ID
+    const token = await signToken({ userId: createdUser.id, email: createdUser.email });
 
     return NextResponse.json(
       {
         token,
         user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          createdAt: user.createdAt,
+          id: createdUser.id,
+          name: createdUser.name,
+          email: createdUser.email,
+          createdAt: createdUser.createdAt,
         },
       },
       { status: 201 }
     );
-  } catch (error) {
-    console.error("Register error:", error);
+  } catch (error: any) {
+    console.error("Register error details:", {
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+      meta: error.meta,
+    });
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Internal server error", details: error.message },
       { status: 500 }
     );
   }

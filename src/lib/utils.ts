@@ -4,9 +4,9 @@ import { Expense, MonthlyAnalytics, CategoryAnalytics, AnalyticsSummary, Expense
 
 // Format currency
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat("en-IN", {
     style: "currency",
-    currency: "USD",
+    currency: "INR",
     minimumFractionDigits: 2,
   }).format(amount);
 }
@@ -49,7 +49,7 @@ export function calculateAnalytics(expenses: Expense[]): AnalyticsSummary {
 
   // Monthly data - last 12 months
   const monthlyMap = new Map<string, { total: number; count: number }>();
-  
+
   // Initialize last 12 months
   for (let i = 11; i >= 0; i--) {
     const date = new Date();
@@ -73,7 +73,7 @@ export function calculateAnalytics(expenses: Expense[]): AnalyticsSummary {
 
   // Category data
   const categoryMap = new Map<ExpenseCategory, { total: number; count: number }>();
-  
+
   expenses.forEach((expense) => {
     const existing = categoryMap.get(expense.category) || { total: 0, count: 0 };
     categoryMap.set(expense.category, {

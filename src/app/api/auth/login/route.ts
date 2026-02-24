@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user
-    const user = db.getUserByEmail(email.toLowerCase());
+    const user = await db.getUserByEmail(email.toLowerCase());
     if (!user) {
       return NextResponse.json(
         { error: "Invalid email or password" },
@@ -55,10 +55,15 @@ export async function POST(request: NextRequest) {
         createdAt: user.createdAt,
       },
     });
-  } catch (error) {
-    console.error("Login error:", error);
+  } catch (error: any) {
+    console.error("Login error details:", {
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+      meta: error.meta,
+    });
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Internal server error", details: error.message },
       { status: 500 }
     );
   }

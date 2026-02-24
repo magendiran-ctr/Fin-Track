@@ -1,69 +1,124 @@
-// In-memory database for the expense tracker
-// In production, replace with a real database (PostgreSQL/MongoDB)
-
+// Database service using Prisma and MongoDB
+import prisma from "./prisma";
 import { User, Expense } from "./types";
 
-// Simple in-memory store (persists during server runtime)
-class Database {
-  private users: Map<string, User> = new Map();
-  private expenses: Map<string, Expense> = new Map();
-  private usersByEmail: Map<string, string> = new Map(); // email -> userId
-
+export class Database {
   // User operations
-  createUser(user: User): User {
-    this.users.set(user.id, user);
-    this.usersByEmail.set(user.email, user.id);
-    return user;
+  async createUser(user: User): Promise<User> {
+    const createdUser = await prisma.user.create({
+      data: {
+        id: undefined, // Prisma handles ID for MongoDB @db.ObjectId
+        name: user.name,
+        email: user.email,
+        password: user.password,
+        createdAt: new Date(user.createdAt),
+      },
+    });
+    return {
+      ...user,
+      id: createdUser.id,
+    };
   }
 
-  getUserById(id: string): User | undefined {
-    return this.users.get(id);
+  async getUserById(id: string): Promise<User | undefined> {
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
+    if (!user) return undefined;
+    return {
+      ...user,
+      createdAt: user.createdAt.toISOString(),
+    };
   }
 
-  getUserByEmail(email: string): User | undefined {
-    const userId = this.usersByEmail.get(email);
-    if (!userId) return undefined;
-    return this.users.get(userId);
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+    if (!user) return undefined;
+    return {
+      ...user,
+      createdAt: user.createdAt.toISOString(),
+    };
   }
 
   // Expense operations
-  createExpense(expense: Expense): Expense {
-    this.expenses.set(expense.id, expense);
-    return expense;
+  async createExpense(expense: Expense): Promise<Expense> {
+    const createdExpense = await prisma.expense.create({
+      data: {
+        title: expense.title,
+        amount: expense.amount,
+        category: expense.category,
+        date: new Date(expense.date),
+        notes: expense.notes,
+        userId: expense.userId,
+      },
+    });
+    return {
+      ...expense,
+      id: createdExpense.id,
+      createdAt: createdExpense.createdAt.toISOString(),
+      updatedAt: createdExpense.updatedAt.toISOString(),
+    };
   }
 
-  getExpenseById(id: string): Expense | undefined {
-    return this.expenses.get(id);
-  }
-
-  getExpensesByUserId(userId: string): Expense[] {
-    return Array.from(this.expenses.values())
-      .filter((e) => e.userId === userId)
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }
-
-  updateExpense(id: string, updates: Partial<Expense>): Expense | undefined {
-    const expense = this.expenses.get(id);
+  async getExpenseById(id: string): Promise<Expense | undefined> {
+    const expense = await prisma.expense.findUnique({
+      where: { id },
+    });
     if (!expense) return undefined;
-    const updated = { ...expense, ...updates, updatedAt: new Date().toISOString() };
-    this.expenses.set(id, updated);
-    return updated;
+    return {
+      ...expense,
+      date: expense.date.toISOString(),
+      createdAt: expense.createdAt.toISOString(),
+      updatedAt: expense.updatedAt.toISOString(),
+    } as Expense;
   }
 
-  deleteExpense(id: string): boolean {
-    return this.expenses.delete(id);
+  async getExpensesByUserId(userId: string): Promise<Expense[]> {
+    const expenses = await prisma.expense.findMany({
+      where: { userId },
+      orderBy: { date: "desc" },
+    });
+    return expenses.map((e: any) => ({
+      ...e,
+      date: e.date.toISOString(),
+      createdAt: e.createdAt.toISOString(),
+      updatedAt: e.updatedAt.toISOString(),
+    })) as Expense[];
+  }
+
+  async updateExpense(id: string, updates: Partial<Expense>): Promise<Expense | undefined> {
+    const data: any = { ...updates };
+    if (updates.date) data.date = new Date(updates.date);
+
+    const updated = await prisma.expense.update({
+      where: { id },
+      data,
+    });
+    return {
+      ...updated,
+      date: updated.date.toISOString(),
+      createdAt: updated.createdAt.toISOString(),
+      updatedAt: updated.updatedAt.toISOString(),
+    } as Expense;
+  }
+
+  async deleteExpense(id: string): Promise<boolean> {
+    try {
+      await prisma.expense.delete({
+        where: { id },
+      });
+      return true;
+    } catch {
+      return false;
+    }
   }
 }
 
-// Singleton instance
-const globalDb = global as typeof global & { __db?: Database };
-if (!globalDb.__db) {
-  globalDb.__db = new Database();
-}
+export const db = new Database();
 
-export const db = globalDb.__db;
-
-// Generate unique IDs
+// Generate unique IDs (kept for backward compatibility if needed, though Prisma handles IDs)
 export function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }

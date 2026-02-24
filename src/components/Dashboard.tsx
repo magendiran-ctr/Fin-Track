@@ -4,11 +4,12 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { DollarSign, TrendingUp, ShoppingBag, Calendar, Plus, TrendingDown } from "lucide-react";
+import { IndianRupee, TrendingUp, ShoppingBag, Calendar, Plus, TrendingDown } from "lucide-react";
 import { StatCard } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { CardSkeleton } from "@/components/ui/Skeleton";
-import { Expense, AnalyticsSummary, CATEGORY_COLORS, CATEGORY_ICONS } from "@/lib/types";
+import { CategoryIcon } from "@/components/ui/CategoryIcon";
+import { Expense, AnalyticsSummary, CATEGORY_COLORS } from "@/lib/types";
 import { formatCurrency, formatDate, getCurrentMonth, getMonthFromDate } from "@/lib/utils";
 
 interface DashboardProps {
@@ -70,11 +71,11 @@ export function Dashboard({
         {/* Decorative circles */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
-        
+
         <div className="relative flex items-center justify-between">
           <div>
             <p className="text-teal-100 text-sm font-medium">This Month&apos;s Spending</p>
-            <motion.p 
+            <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
@@ -83,7 +84,7 @@ export function Dashboard({
               {formatCurrency(thisMonthTotal)}
             </motion.p>
             {lastMonthTotal > 0 && (
-              <motion.p 
+              <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
@@ -124,7 +125,7 @@ export function Dashboard({
             title="Total Expenses"
             value={formatCurrency(analytics?.totalAmount || 0)}
             subtitle="All time"
-            icon={<DollarSign size={20} />}
+            icon={<IndianRupee size={20} />}
             color="green"
           />
         </motion.div>
@@ -196,7 +197,7 @@ export function Dashboard({
             {recentExpenses.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
-                  <span className="text-3xl">💸</span>
+                  <Plus className="text-slate-400" size={32} />
                 </div>
                 <p className="text-slate-600 dark:text-slate-300 font-medium">No expenses yet</p>
                 <p className="text-slate-400 text-sm mt-1">Start tracking your spending</p>
@@ -219,9 +220,11 @@ export function Dashboard({
                       className="w-10 h-10 rounded-xl flex items-center justify-center text-base flex-shrink-0"
                       style={{ backgroundColor: `${CATEGORY_COLORS[expense.category]}20` }}
                     >
-                      <span style={{ color: CATEGORY_COLORS[expense.category] }}>
-                        {CATEGORY_ICONS[expense.category]}
-                      </span>
+                      <CategoryIcon
+                        category={expense.category}
+                        size={20}
+                        style={{ color: CATEGORY_COLORS[expense.category] }}
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-slate-800 dark:text-slate-100 truncate">{expense.title}</p>
@@ -251,7 +254,7 @@ export function Dashboard({
             {!analytics || analytics.categoryData.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
-                  <span className="text-3xl">📊</span>
+                  <TrendingUp className="text-slate-400" size={32} />
                 </div>
                 <p className="text-slate-500 dark:text-slate-400 text-sm">No data yet</p>
               </div>
@@ -266,7 +269,7 @@ export function Dashboard({
                   >
                     <div className="flex items-center justify-between mb-1.5">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm">{CATEGORY_ICONS[cat.category]}</span>
+                        <CategoryIcon category={cat.category} size={16} />
                         <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{cat.category}</span>
                       </div>
                       <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">

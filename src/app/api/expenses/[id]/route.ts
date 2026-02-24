@@ -24,7 +24,7 @@ export async function PUT(
     }
 
     const { id } = await params;
-    const expense = db.getExpenseById(id);
+    const expense = await db.getExpenseById(id);
 
     if (!expense) {
       return NextResponse.json({ error: "Expense not found" }, { status: 404 });
@@ -41,7 +41,7 @@ export async function PUT(
       return NextResponse.json({ error: validationError }, { status: 400 });
     }
 
-    const updated = db.updateExpense(id, {
+    const updated = await db.updateExpense(id, {
       title: body.title.trim(),
       amount: Number(body.amount),
       category: body.category as ExpenseCategory,
@@ -67,7 +67,7 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    const expense = db.getExpenseById(id);
+    const expense = await db.getExpenseById(id);
 
     if (!expense) {
       return NextResponse.json({ error: "Expense not found" }, { status: 404 });
@@ -78,7 +78,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    db.deleteExpense(id);
+    await db.deleteExpense(id);
 
     return NextResponse.json({ message: "Expense deleted successfully" });
   } catch (error) {

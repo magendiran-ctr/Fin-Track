@@ -53,14 +53,14 @@ export const CATEGORY_COLORS: Record<ExpenseCategory, string> = {
 };
 
 export const CATEGORY_ICONS: Record<ExpenseCategory, string> = {
-  Food: "🍔",
-  Travel: "✈️",
-  Bills: "📄",
-  Shopping: "🛍️",
-  Entertainment: "🎬",
-  Health: "💊",
-  Education: "📚",
-  Other: "📦",
+  Food: "Utensils",
+  Travel: "Plane",
+  Bills: "FileText",
+  Shopping: "ShoppingBag",
+  Entertainment: "Film",
+  Health: "Activity",
+  Education: "GraduationCap",
+  Other: "Box",
 };
 
 export interface AuthResponse {

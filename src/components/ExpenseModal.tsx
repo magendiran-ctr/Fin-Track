@@ -7,7 +7,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
-import { Expense, EXPENSE_CATEGORIES, ExpenseCategory, CATEGORY_ICONS } from "@/lib/types";
+import { CategoryIcon } from "@/components/ui/CategoryIcon";
+import { Expense, EXPENSE_CATEGORIES, ExpenseCategory } from "@/lib/types";
 import { expensesApi } from "@/lib/api-client";
 
 interface ExpenseModalProps {
@@ -75,7 +76,7 @@ export function ExpenseModal({ isOpen, onClose, onSuccess, expense }: ExpenseMod
 
   const categoryOptions = EXPENSE_CATEGORIES.map((cat) => ({
     value: cat,
-    label: `${CATEGORY_ICONS[cat]} ${cat}`,
+    label: cat,
   }));
 
   return (
@@ -166,7 +167,7 @@ export function ExpenseModal({ isOpen, onClose, onSuccess, expense }: ExpenseMod
                     required
                     min="0.01"
                     step="0.01"
-                    icon={<span className="text-sm font-medium">$</span>}
+                    icon={<span className="text-sm font-medium">₹</span>}
                   />
 
                   <Input

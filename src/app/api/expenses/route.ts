@@ -15,9 +15,12 @@ async function authenticate(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  console.log("GET /api/expenses - Request received");
   try {
     const payload = await authenticate(request);
+    console.log("Auth payload:", payload);
     if (!payload) {
+      console.log("Unauthorized: No payload");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -27,7 +30,24 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get("endDate");
     const search = searchParams.get("search");
 
-    let expenses = db.getExpensesByUserId(payload.userId);
+    console.log("Query params:", { category, startDate, endDate, search });
+
+    let expenses = [];
+
+    // Defensive check: Ensure userId is a valid MongoDB ObjectId format
+    if (!/^[0-9a-fA-F]{24}$/.test(payload.userId)) {
+      console.error("Invalid User ID format in token (GET):", payload.userId);
+      return NextResponse.json(
+        {
+          error: "Invalid session",
+          details: "Your session contains an invalid user ID format. Please logout and login again."
+        },
+        { status: 401 }
+      );
+    }
+
+    expenses = await db.getExpensesByUserId(payload.userId);
+    console.log(`Found ${expenses.length} expenses for user ${payload.userId}`);
 
     // Apply filters
     if (category && category !== "All") {
@@ -49,23 +69,50 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    console.log(`Returning ${expenses.length} filtered expenses`);
     return NextResponse.json({ expenses });
-  } catch (error) {
-    console.error("Get expenses error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  } catch (error: any) {
+    console.error("Get expenses CRITICAL error:", {
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+      meta: error.meta,
+    });
+    return NextResponse.json(
+      { error: "Internal server error", details: error.message },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(request: NextRequest) {
+  console.log("POST /api/expenses - Request received");
   try {
     const payload = await authenticate(request);
+    console.log("Auth payload:", payload);
     if (!payload) {
+      console.log("Unauthorized: No payload");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Defensive check: Ensure userId is a valid MongoDB ObjectId format
+    if (!/^[0-9a-fA-F]{24}$/.test(payload.userId)) {
+      console.error("Invalid User ID format in token:", payload.userId);
+      return NextResponse.json(
+        {
+          error: "Invalid session",
+          details: "Your session contains an invalid user ID. Please logout and login again."
+        },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
+    console.log("Request body:", body);
+
     const validationError = validateExpenseInput(body);
     if (validationError) {
+      console.log("Validation error:", validationError);
       return NextResponse.json({ error: validationError }, { status: 400 });
     }
 
@@ -81,11 +128,23 @@ export async function POST(request: NextRequest) {
       updatedAt: new Date().toISOString(),
     };
 
-    db.createExpense(expense);
+    console.log("Prepared expense object:", expense);
 
-    return NextResponse.json({ expense }, { status: 201 });
-  } catch (error) {
-    console.error("Create expense error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    console.log("Calling db.createExpense...");
+    const createdExpense = await db.createExpense(expense);
+    console.log("Expense created successfully with ID:", createdExpense.id);
+
+    return NextResponse.json({ expense: createdExpense }, { status: 201 });
+  } catch (error: any) {
+    console.error("Create expense CRITICAL error:", {
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+      meta: error.meta,
+    });
+    return NextResponse.json(
+      { error: "Internal server error", details: error.message },
+      { status: 500 }
+    );
   }
 }
