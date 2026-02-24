@@ -95,14 +95,14 @@ export function ExpenseList({ expenses, onEdit, onAdd, onRefresh, isLoading }: E
             {filtered.length} of {expenses.length} expenses
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-shrink-0">
           <Button variant="secondary" size="sm" onClick={handleExportCSV}>
             <Download size={15} />
-            Export CSV
+            <span className="hidden sm:inline">Export CSV</span>
           </Button>
           <Button variant="primary" size="sm" onClick={onAdd}>
             <Plus size={15} />
-            Add Expense
+            <span className="hidden sm:inline">Add Expense</span>
           </Button>
         </div>
       </motion.div>
@@ -261,7 +261,7 @@ function ExpenseRow({ expense, onEdit, onDelete, isDeleting }: ExpenseRowProps) 
   return (
     <motion.div
       whileHover={{ backgroundColor: "rgba(0,0,0,0.02)" }}
-      className="flex items-center gap-4 px-6 py-4 transition-colors group"
+      className="flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 transition-colors group"
     >
       {/* Category icon */}
       <motion.div
@@ -274,8 +274,14 @@ function ExpenseRow({ expense, onEdit, onDelete, isDeleting }: ExpenseRowProps) 
 
       {/* Details */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <p className="font-medium text-slate-800 dark:text-slate-100 truncate">{expense.title}</p>
+        <div className="flex items-center justify-between gap-2">
+          <p className="font-medium text-sm sm:text-base text-slate-800 dark:text-slate-100 truncate">{expense.title}</p>
+          <p className="font-semibold text-sm sm:text-base text-slate-800 dark:text-slate-100 flex-shrink-0 sm:hidden">
+            {formatCurrency(expense.amount)}
+          </p>
+        </div>
+        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+          <p className="text-xs text-slate-400 dark:text-slate-500">{formatDate(expense.date)}</p>
           <span
             className="text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0"
             style={{
@@ -285,25 +291,20 @@ function ExpenseRow({ expense, onEdit, onDelete, isDeleting }: ExpenseRowProps) 
           >
             {expense.category}
           </span>
-        </div>
-        <div className="flex items-center gap-2 mt-0.5">
-          <p className="text-xs text-slate-400 dark:text-slate-500">{formatDate(expense.date)}</p>
           {expense.notes && (
-            <p className="text-xs text-slate-400 dark:text-slate-500 truncate">· {expense.notes}</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 truncate hidden sm:block">· {expense.notes}</p>
           )}
         </div>
       </div>
 
-      {/* Amount */}
-      <div className="text-right flex-shrink-0">
+      {/* Amount - desktop only */}
+      <div className="text-right flex-shrink-0 hidden sm:block">
         <p className="font-semibold text-slate-800 dark:text-slate-100">{formatCurrency(expense.amount)}</p>
       </div>
 
-      {/* Actions */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        whileHover={{ opacity: 1 }}
-        className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+      {/* Actions - always visible on mobile, hover on desktop */}
+      <div
+        className="flex items-center gap-1 flex-shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
       >
         <motion.button
           whileHover={{ scale: 1.1 }}
@@ -328,7 +329,7 @@ function ExpenseRow({ expense, onEdit, onDelete, isDeleting }: ExpenseRowProps) 
             <Trash2 size={14} />
           )}
         </motion.button>
-      </motion.div>
+      </div>
     </motion.div>
   );
 }
