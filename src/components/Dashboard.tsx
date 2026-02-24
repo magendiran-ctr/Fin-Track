@@ -66,20 +66,20 @@ export function Dashboard({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative overflow-hidden rounded-2xl gradient-primary p-6 lg:p-8"
+        className="relative overflow-hidden rounded-2xl gradient-primary p-5 sm:p-6 lg:p-8"
       >
         {/* Decorative circles */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
 
-        <div className="relative flex items-center justify-between">
+        <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <p className="text-teal-100 text-sm font-medium">This Month&apos;s Spending</p>
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-4xl lg:text-5xl font-bold mt-2 text-white"
+              className="text-3xl sm:text-4xl lg:text-5xl font-bold mt-1 text-white"
             >
               {formatCurrency(thisMonthTotal)}
             </motion.p>
@@ -88,7 +88,7 @@ export function Dashboard({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
-                className="text-teal-100 text-sm mt-3 flex items-center gap-2"
+                className="text-teal-100 text-sm mt-2 flex items-center gap-2"
               >
                 {monthlyChange >= 0 ? (
                   <TrendingUp className="w-4 h-4" />
@@ -101,11 +101,11 @@ export function Dashboard({
               </motion.p>
             )}
           </div>
-          <div className="hidden sm:block">
+          <div className="flex-shrink-0">
             <Button
               variant="secondary"
               onClick={onAddExpense}
-              className="bg-white/20 border-white/30 text-white hover:bg-white/30 backdrop-blur-sm"
+              className="bg-white/20 border-white/30 text-white hover:bg-white/30 backdrop-blur-sm w-full sm:w-auto"
             >
               <Plus size={16} />
               Add Expense
@@ -115,7 +115,7 @@ export function Dashboard({
       </motion.div>
 
       {/* Stats grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -214,7 +214,7 @@ export function Dashboard({
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.05 * index }}
-                    className="flex items-center gap-4 px-6 py-3.5 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors"
+                    className="flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-3.5 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors"
                   >
                     <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center text-base flex-shrink-0"

@@ -27,7 +27,7 @@ export default function TopBar({ onAddExpense }: TopBarProps) {
 
   return (
     <header className="sticky top-0 z-30 glass border-b border-slate-200/50 dark:border-slate-700/50">
-      <div className="flex items-center justify-between h-16 px-4 lg:px-6">
+      <div className="flex items-center justify-between h-16 pl-16 pr-4 lg:pl-6 lg:pr-6">
         {/* Search - hidden on mobile */}
         <div className="hidden md:flex items-center gap-3 flex-1 max-w-md">
           <div className="relative w-full">
@@ -73,8 +73,8 @@ export default function TopBar({ onAddExpense }: TopBarProps) {
                         setShowMonthDropdown(false);
                       }}
                       className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors
-                        ${currentMonth === index 
-                          ? "bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300" 
+                        ${currentMonth === index
+                          ? "bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300"
                           : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                         }
                       `}

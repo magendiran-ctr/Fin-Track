@@ -5,6 +5,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { LayoutDashboard, Receipt, PieChart, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
@@ -143,7 +144,7 @@ function HomeContent() {
         <TopBar onAddExpense={handleAddExpense} />
 
         {/* Page Content */}
-        <main className="p-4 lg:p-6">
+        <main className="p-4 lg:p-6 pb-24 lg:pb-6">
           <AnimatePresence mode="wait">
             {activeTab === "dashboard" && (
               <motion.div
@@ -267,6 +268,36 @@ function HomeContent() {
           </AnimatePresence>
         </main>
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 glass border-t border-slate-200/50 dark:border-slate-700/50 px-2 py-2">
+        <div className="flex items-center justify-around">
+          {[
+            { tab: "dashboard" as Tab, icon: LayoutDashboard, label: "Home" },
+            { tab: "expenses" as Tab, icon: Receipt, label: "Expenses" },
+            { tab: "analytics" as Tab, icon: PieChart, label: "Analytics" },
+            { tab: "settings" as Tab, icon: Settings, label: "Settings" },
+          ].map(({ tab, icon: Icon, label }) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors ${activeTab === tab
+                  ? "text-teal-600 dark:text-teal-400"
+                  : "text-slate-500 dark:text-slate-400"
+                }`}
+            >
+              <Icon className="w-5 h-5" />
+              <span className="text-xs font-medium">{label}</span>
+              {activeTab === tab && (
+                <motion.div
+                  layoutId="mobileNav"
+                  className="absolute -bottom-2 w-1 h-1 rounded-full bg-teal-500"
+                />
+              )}
+            </button>
+          ))}
+        </div>
+      </nav>
 
       {/* Expense Modal */}
       <ExpenseModal
