@@ -76,7 +76,7 @@ export default function Sidebar() {
             <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-lg shadow-teal-500/20">
               <Wallet className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold gradient-text">ExpenseIQ</span>
+            <span className="text-xl font-bold gradient-text">Fin-Track</span>
           </Link>
         </div>
 
@@ -84,7 +84,7 @@ export default function Sidebar() {
         <nav className="flex-1 p-4 space-y-1">
           {navItems.map((item, index) => {
             const Icon = item.icon;
-            const isItemActive = pathname === "/" && item.href === "/" 
+            const isItemActive = pathname === "/" && item.href === "/"
               ? pathname === "/"
               : pathname === item.href.split("?")[0];
 
@@ -101,8 +101,8 @@ export default function Sidebar() {
                   onMouseEnter={() => setIsHovered(item.href)}
                   onMouseLeave={() => setIsHovered(null)}
                   className={`sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group
-                    ${isItemActive 
-                      ? "bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 text-teal-700 dark:text-teal-400" 
+                    ${isItemActive
+                      ? "bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 text-teal-700 dark:text-teal-400"
                       : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-800/50"
                     }
                     ${isItemActive ? "active" : ""}
@@ -115,7 +115,7 @@ export default function Sidebar() {
                     <Icon className={`w-5 h-5 transition-colors ${isItemActive ? "text-teal-600 dark:text-teal-400" : "group-hover:text-teal-600 dark:group-hover:text-teal-400"}`} />
                   </motion.div>
                   <span className="font-medium">{item.label}</span>
-                  
+
                   {/* Active indicator */}
                   {isItemActive && (
                     <motion.div
@@ -144,7 +144,7 @@ export default function Sidebar() {
               </p>
             </div>
           </div>
-          
+
           <button
             onClick={logout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-colors"
