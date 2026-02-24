@@ -12,13 +12,14 @@ import {
   LogOut,
   Menu,
   X,
-  Wallet
+  Wallet,
+  IndianRupee
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/?tab=expenses", label: "Expenses", icon: Receipt },
+  { href: "/?tab=expenses", label: "Expenses", icon: IndianRupee },
   { href: "/?tab=analytics", label: "Analytics", icon: PieChart },
   { href: "/?tab=settings", label: "Settings", icon: Settings },
 ];
