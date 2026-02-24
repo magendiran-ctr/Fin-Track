@@ -12,12 +12,13 @@ import { Dashboard } from "@/components/Dashboard";
 import { ExpenseList } from "@/components/ExpenseList";
 import { AnalyticsCharts } from "@/components/AnalyticsCharts";
 import { ExpenseModal } from "@/components/ExpenseModal";
+import { Suspense } from "react";
 import { expensesApi, analyticsApi } from "@/lib/api-client";
 import { Expense, AnalyticsSummary } from "@/lib/types";
 
 type Tab = "dashboard" | "expenses" | "analytics" | "settings";
 
-export default function HomePage() {
+function HomeContent() {
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -278,5 +279,30 @@ export default function HomePage() {
         expense={editingExpense}
       />
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center gap-4"
+        >
+          <div className="w-12 h-12 rounded-2xl gradient-primary flex items-center justify-center">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              className="w-6 h-6 border-2 border-white border-t-transparent rounded-full"
+            />
+          </div>
+          <p className="text-slate-500 dark:text-slate-400 text-sm">Loading...</p>
+        </motion.div>
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   );
 }
