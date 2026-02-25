@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, Receipt, PieChart, Settings, CreditCard, Plus, IndianRupee } from "lucide-react";
+import { LayoutDashboard, Receipt, PieChart, Settings, CreditCard, Plus, IndianRupee, TrendingUp } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
@@ -152,6 +152,25 @@ function HomeContent() {
 
         {/* Page Content */}
         <main className="p-4 lg:p-6 pb-24 lg:pb-6">
+          {/* Mobile Greeting - visible only on small screens */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="md:hidden flex items-center gap-3 mb-6 p-4 rounded-2xl bg-white/50 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50"
+          >
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center shadow-md flex-shrink-0">
+              <TrendingUp className="w-5 h-5 text-white" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-slate-800 dark:text-slate-100 leading-none truncate">
+                Welcome, {user?.name?.split(" ")[0] || "there"} 👋
+              </p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
+              </p>
+            </div>
+          </motion.div>
+
           <AnimatePresence mode="wait">
             {activeTab === "dashboard" && (
               <motion.div
