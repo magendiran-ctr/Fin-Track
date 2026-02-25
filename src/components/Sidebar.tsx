@@ -23,7 +23,7 @@ const navItems = [
   { href: "/?tab=expenses", label: "Expenses", icon: IndianRupee },
   { href: "/?tab=analytics", label: "Analytics", icon: PieChart },
   { href: "/?tab=settings", label: "Settings", icon: Settings },
-  { href: "/?tab=Subscription", label: "Subscription", icon: CreditCard },
+  { href: "/?tab=subscription", label: "Subscription", icon: CreditCard },
 
 ];
 

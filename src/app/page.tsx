@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, Receipt, PieChart, Settings } from "lucide-react";
+import { LayoutDashboard, Receipt, PieChart, Settings, CreditCard } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
@@ -13,12 +13,14 @@ import { Dashboard } from "@/components/Dashboard";
 import { ExpenseList } from "@/components/ExpenseList";
 import { AnalyticsCharts } from "@/components/AnalyticsCharts";
 import { ExpenseModal } from "@/components/ExpenseModal";
+import { SettingsView } from "@/components/SettingsView";
+import { SubscriptionView } from "@/components/SubscriptionView";
 import { Suspense } from "react";
 import { expensesApi, analyticsApi } from "@/lib/api-client";
 import { Expense, AnalyticsSummary } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
 
-type Tab = "dashboard" | "expenses" | "analytics" | "settings";
+type Tab = "dashboard" | "expenses" | "analytics" | "settings" | "subscription";
 
 function HomeContent() {
   const { user, isLoading: authLoading } = useAuth();
@@ -42,7 +44,7 @@ function HomeContent() {
   // Get tab from URL params
   useEffect(() => {
     const tab = searchParams.get("tab") as Tab | null;
-    if (tab && ["dashboard", "expenses", "analytics", "settings"].includes(tab)) {
+    if (tab && ["dashboard", "expenses", "analytics", "settings", "subscription"].includes(tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -252,24 +254,19 @@ function HomeContent() {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="glass card p-6 max-w-2xl">
-                  <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-1">Settings</h2>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
-                    Manage your account preferences
-                  </p>
+                <SettingsView />
+              </motion.div>
+            )}
 
-                  <div className="space-y-4">
-                    <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Email</p>
-                      <p className="text-slate-500 dark:text-slate-400">{user.email}</p>
-                    </div>
-
-                    <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Plan</p>
-                      <p className="text-slate-500 dark:text-slate-400">Free Plan</p>
-                    </div>
-                  </div>
-                </div>
+            {activeTab === "subscription" && (
+              <motion.div
+                key="subscription"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <SubscriptionView />
               </motion.div>
             )}
           </AnimatePresence>
@@ -283,22 +280,23 @@ function HomeContent() {
             { tab: "dashboard" as Tab, icon: LayoutDashboard, label: "Home" },
             { tab: "expenses" as Tab, icon: Receipt, label: "Expenses" },
             { tab: "analytics" as Tab, icon: PieChart, label: "Analytics" },
+            { tab: "subscription" as Tab, icon: CreditCard, label: "Pricing" },
             { tab: "settings" as Tab, icon: Settings, label: "Settings" },
           ].map(({ tab, icon: Icon, label }) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors ${activeTab === tab
+              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors ${activeTab === tab
                 ? "text-teal-600 dark:text-teal-400"
                 : "text-slate-500 dark:text-slate-400"
                 }`}
             >
               <Icon className="w-5 h-5" />
-              <span className="text-xs font-medium">{label}</span>
+              <span className="text-[10px] font-medium">{label}</span>
               {activeTab === tab && (
                 <motion.div
                   layoutId="mobileNav"
-                  className="absolute -bottom-2 w-1 h-1 rounded-full bg-teal-500"
+                  className="absolute -bottom-1 w-1 h-1 rounded-full bg-teal-500"
                 />
               )}
             </button>
