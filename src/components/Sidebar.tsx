@@ -13,15 +13,19 @@ import {
   Menu,
   X,
   Wallet,
-  IndianRupee
+  IndianRupee,
+  SubscriptIcon
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { subscribe } from "diagnostics_channel";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/?tab=expenses", label: "Expenses", icon: IndianRupee },
   { href: "/?tab=analytics", label: "Analytics", icon: PieChart },
   { href: "/?tab=settings", label: "Settings", icon: Settings },
+  { href: "/?tab=Subscription", label: "Subscription", icon: SubscriptIcon },
+
 ];
 
 interface SidebarProps {
