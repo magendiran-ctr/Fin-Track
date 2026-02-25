@@ -14,7 +14,8 @@ import {
   X,
   Wallet,
   IndianRupee,
-  CreditCard
+  CreditCard,
+  Plus
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -78,6 +79,18 @@ export default function Sidebar({ isMobileOpen, setIsMobileOpen }: SidebarProps)
 
         {/* Navigation */}
         <nav className="flex-1 p-4 space-y-1">
+          {/* Add Expense Button */}
+          <button
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent('open-expense-modal'));
+              setIsMobileOpen(false); // Close sidebar on mobile after clicking
+            }}
+            className="w-full mb-6 flex items-center justify-center gap-2 py-3 rounded-xl gradient-primary text-white font-semibold shadow-lg shadow-teal-500/25 hover:shadow-teal-500/40 transition-all active:scale-95"
+          >
+            <Plus className="w-5 h-5" />
+            Add Expense
+          </button>
+
           {navItems.map((item, index) => {
             const Icon = item.icon;
             const isItemActive = pathname === "/" && item.href === "/"

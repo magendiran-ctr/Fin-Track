@@ -18,6 +18,7 @@ interface DashboardProps {
   isLoading: boolean;
   onAddExpense: () => void;
   onViewExpenses: () => void;
+  filters: { startDate: string; endDate: string };
 }
 
 export function Dashboard({
@@ -26,24 +27,11 @@ export function Dashboard({
   isLoading,
   onAddExpense,
   onViewExpenses,
+  filters
 }: DashboardProps) {
-  const currentMonth = getCurrentMonth();
-  const thisMonthExpenses = expenses.filter(
-    (e) => getMonthFromDate(e.date) === currentMonth
-  );
-  const thisMonthTotal = thisMonthExpenses.reduce((sum, e) => sum + e.amount, 0);
-
-  const lastMonth = new Date();
-  lastMonth.setMonth(lastMonth.getMonth() - 1);
-  const lastMonthKey = `${lastMonth.getFullYear()}-${String(lastMonth.getMonth() + 1).padStart(2, "0")}`;
-  const lastMonthTotal = expenses
-    .filter((e) => getMonthFromDate(e.date) === lastMonthKey)
-    .reduce((sum, e) => sum + e.amount, 0);
-
-  const monthlyChange =
-    lastMonthTotal > 0
-      ? Math.round(((thisMonthTotal - lastMonthTotal) / lastMonthTotal) * 100)
-      : 0;
+  // Use passed filters for calculations
+  const filteredExpenses = expenses; // expenses are already filtered by the API call in page.tsx
+  const totalInPeriod = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
 
   const recentExpenses = expenses.slice(0, 5);
 
@@ -74,32 +62,18 @@ export function Dashboard({
 
         <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <p className="text-teal-100 text-sm font-medium">This Month&apos;s Spending</p>
+            <p className="text-teal-100 text-sm font-medium">Selected Period Spending</p>
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
               className="text-2xl sm:text-4xl lg:text-5xl font-bold mt-1 text-white"
             >
-              {formatCurrency(thisMonthTotal)}
+              {formatCurrency(totalInPeriod)}
             </motion.p>
-            {lastMonthTotal > 0 && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="text-teal-100 text-sm mt-2 flex items-center gap-2"
-              >
-                {monthlyChange >= 0 ? (
-                  <TrendingUp className="w-4 h-4" />
-                ) : (
-                  <TrendingDown className="w-4 h-4" />
-                )}
-                <span className={monthlyChange >= 0 ? "text-red-200" : "text-green-200"}>
-                  {monthlyChange >= 0 ? "↑" : "↓"} {Math.abs(monthlyChange)}% vs last month
-                </span>
-              </motion.p>
-            )}
+            <p className="text-teal-100 text-xs mt-2 opacity-80">
+              {formatDate(filters.startDate)} — {formatDate(filters.endDate)}
+            </p>
           </div>
           <div className="flex-shrink-0">
             <Button
@@ -122,9 +96,9 @@ export function Dashboard({
           transition={{ delay: 0.1 }}
         >
           <StatCard
-            title="Total Expenses"
-            value={formatCurrency(analytics?.totalAmount || 0)}
-            subtitle="All time"
+            title="Total in Period"
+            value={formatCurrency(totalInPeriod)}
+            subtitle="Selected range"
             icon={<IndianRupee size={20} />}
             color="green"
           />
@@ -135,16 +109,11 @@ export function Dashboard({
           transition={{ delay: 0.15 }}
         >
           <StatCard
-            title="This Month"
-            value={formatCurrency(thisMonthTotal)}
-            subtitle={`${thisMonthExpenses.length} transactions`}
+            title="Transactions"
+            value={String(filteredExpenses.length)}
+            subtitle="In period"
             icon={<Calendar size={20} />}
             color="blue"
-            trend={
-              lastMonthTotal > 0
-                ? { value: monthlyChange, label: "vs last month" }
-                : undefined
-            }
           />
         </motion.div>
         <motion.div
@@ -154,7 +123,7 @@ export function Dashboard({
         >
           <StatCard
             title="Avg. Expense"
-            value={formatCurrency(analytics?.averageExpense || 0)}
+            value={formatCurrency(filteredExpenses.length > 0 ? totalInPeriod / filteredExpenses.length : 0)}
             subtitle="Per transaction"
             icon={<TrendingUp size={20} />}
             color="purple"
@@ -166,8 +135,8 @@ export function Dashboard({
           transition={{ delay: 0.25 }}
         >
           <StatCard
-            title="Total Transactions"
-            value={String(analytics?.totalExpenses || 0)}
+            title="Total tracked"
+            value={formatCurrency(analytics?.totalAmount || 0)}
             subtitle="All time"
             icon={<ShoppingBag size={20} />}
             color="orange"

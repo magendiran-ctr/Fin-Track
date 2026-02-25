@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, Receipt, PieChart, Settings, CreditCard } from "lucide-react";
+import { LayoutDashboard, Receipt, PieChart, Settings, CreditCard, Plus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
@@ -27,13 +27,17 @@ function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("dashboard");
+  const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<Expense | undefined>();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
-  const [isLoadingExpenses, setIsLoadingExpenses] = useState(true);
-  const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [filters, setFilters] = useState({
+    startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0],
+  });
   const [mounted, setMounted] = useState(false);
 
   // Fix hydration mismatch
@@ -56,63 +60,56 @@ function HomeContent() {
     }
   }, [user, authLoading, router]);
 
-  // Fetch expenses
-  const fetchExpenses = useCallback(async () => {
-    if (!user) return;
-    setIsLoadingExpenses(true);
-    try {
-      const data = await expensesApi.getAll();
-      setExpenses(data.expenses);
-    } catch (err) {
-      console.error("Failed to fetch expenses:", err);
-    } finally {
-      setIsLoadingExpenses(false);
-    }
-  }, [user]);
-
-  // Fetch analytics
-  const fetchAnalytics = useCallback(async () => {
-    if (!user) return;
-    setIsLoadingAnalytics(true);
-    try {
-      const data = await analyticsApi.getMonthly();
-      setAnalytics(data.analytics);
-    } catch (err) {
-      console.error("Failed to fetch analytics:", err);
-    } finally {
-      setIsLoadingAnalytics(false);
-    }
-  }, [user]);
-
-  // Load data on mount
+  // Add event listener for 'open-expense-modal' to handle external add requests.
   useEffect(() => {
-    if (user) {
-      fetchExpenses();
-      fetchAnalytics();
-    }
-  }, [user, fetchExpenses, fetchAnalytics]);
+    const handleOpenModal = () => setIsExpenseModalOpen(true);
+    window.addEventListener('open-expense-modal', handleOpenModal);
+    return () => window.removeEventListener('open-expense-modal', handleOpenModal);
+  }, []);
 
-  // Refresh all data
+  const fetchDashboardData = useCallback(async () => {
+    if (!user) return;
+    setIsLoading(true);
+    try {
+      const [expensesData, analyticsData] = await Promise.all([
+        expensesApi.getAll({
+          startDate: filters.startDate,
+          endDate: filters.endDate
+        }),
+        analyticsApi.getMonthly()
+      ]);
+      setExpenses(expensesData.expenses);
+      setAnalytics(analyticsData.analytics);
+    } catch (err) {
+      console.error("Failed to fetch dashboard data:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user, filters]);
+
+  // Load data when user or filters change
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
+
+  // Refresh data helper
   const handleRefresh = useCallback(() => {
-    fetchExpenses();
-    fetchAnalytics();
-  }, [fetchExpenses, fetchAnalytics]);
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   const handleAddExpense = () => {
-    setEditingExpense(null);
-    setModalOpen(true);
+    setEditingExpense(undefined);
+    setIsExpenseModalOpen(true);
   };
 
   const handleEditExpense = (expense: Expense) => {
     setEditingExpense(expense);
-    setModalOpen(true);
+    setIsExpenseModalOpen(true);
   };
 
   const handleModalSuccess = () => {
     handleRefresh();
   };
-
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   // Show loading while checking auth
   if (authLoading || !mounted) {
@@ -150,6 +147,8 @@ function HomeContent() {
           onAddExpense={handleAddExpense}
           isMobileOpen={isMobileOpen}
           setIsMobileOpen={setIsMobileOpen}
+          filters={filters}
+          onFilterChange={(newFilters) => setFilters(prev => ({ ...prev, ...newFilters }))}
         />
 
         {/* Page Content */}
@@ -158,17 +157,18 @@ function HomeContent() {
             {activeTab === "dashboard" && (
               <motion.div
                 key="dashboard"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.2 }}
               >
                 <Dashboard
                   expenses={expenses}
                   analytics={analytics}
-                  isLoading={isLoadingExpenses}
+                  isLoading={isLoading}
                   onAddExpense={handleAddExpense}
                   onViewExpenses={() => setActiveTab("expenses")}
+                  filters={filters}
                 />
               </motion.div>
             )}
@@ -186,7 +186,7 @@ function HomeContent() {
                   onEdit={handleEditExpense}
                   onAdd={handleAddExpense}
                   onRefresh={handleRefresh}
-                  isLoading={isLoadingExpenses}
+                  isLoading={isLoading}
                 />
               </motion.div>
             )}
@@ -209,7 +209,7 @@ function HomeContent() {
                       Insights into your spending patterns
                     </p>
                   </motion.div>
-                  <AnalyticsCharts analytics={analytics} isLoading={isLoadingAnalytics} />
+                  <AnalyticsCharts analytics={analytics} isLoading={isLoading} />
 
                   {/* Summary stats */}
                   {analytics && analytics.totalExpenses > 0 && (
@@ -304,12 +304,23 @@ function HomeContent() {
         </div>
       </nav>
 
+      {/* Floating Action Button (FAB) - Added for convenience */}
+      <motion.button
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={handleAddExpense}
+        className="fixed bottom-24 right-6 lg:bottom-10 lg:right-10 w-14 h-14 rounded-full gradient-primary text-white shadow-xl shadow-teal-500/25 flex items-center justify-center z-40 lg:hidden"
+        aria-label="Add Expense"
+      >
+        <Plus className="w-6 h-6" />
+      </motion.button>
+
       {/* Expense Modal */}
       <ExpenseModal
-        isOpen={modalOpen}
+        isOpen={isExpenseModalOpen}
         onClose={() => {
-          setModalOpen(false);
-          setEditingExpense(null);
+          setIsExpenseModalOpen(false);
+          setEditingExpense(undefined);
         }}
         onSuccess={handleModalSuccess}
         expense={editingExpense}
