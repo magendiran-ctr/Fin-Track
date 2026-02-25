@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, Receipt, PieChart, Settings, CreditCard, Plus } from "lucide-react";
+import { LayoutDashboard, Receipt, PieChart, Settings, CreditCard, Plus, IndianRupee } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
@@ -278,9 +278,9 @@ function HomeContent() {
         <div className="flex items-center justify-around">
           {[
             { tab: "dashboard" as Tab, icon: LayoutDashboard, label: "Home" },
-            { tab: "expenses" as Tab, icon: Receipt, label: "Expenses" },
+            { tab: "expenses" as Tab, icon: IndianRupee, label: "Expenses" },
             { tab: "analytics" as Tab, icon: PieChart, label: "Analytics" },
-            { tab: "subscription" as Tab, icon: CreditCard, label: "Pricing" },
+            { tab: "subscription" as Tab, icon: CreditCard, label: "Subs" },
             { tab: "settings" as Tab, icon: Settings, label: "Settings" },
           ].map(({ tab, icon: Icon, label }) => (
             <button
