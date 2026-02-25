@@ -5,7 +5,8 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { TrendingUp, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/contexts/AuthContext";
@@ -43,11 +44,9 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg mb-4">
-            <TrendingUp size={26} className="text-white" />
-          </div>
+          <Logo size="lg" className="justify-center mb-4" />
           <h1 className="text-2xl font-bold text-slate-800">Welcome back</h1>
-          <p className="text-slate-500 mt-1">Sign in to your ExpenseIQ account</p>
+          <p className="text-slate-500 mt-1">Sign in to your Fin Tracker account</p>
         </div>
 
         {/* Card */}

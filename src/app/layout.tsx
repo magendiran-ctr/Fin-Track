@@ -9,8 +9,8 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "ExpenseIQ - Smart Expense Tracker",
-  description: "Track your expenses, analyze spending patterns, and take control of your finances.",
+  title: "Fin Tracker - Smart Expense Management",
+  description: "Take control of your finances with Fin Tracker. Track expenses, analyze spending, and reach your financial goals.",
 };
 
 export default function RootLayout({
