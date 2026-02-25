@@ -25,7 +25,7 @@ import { Expense, EXPENSE_CATEGORIES, ExpenseCategory, CATEGORY_COLORS } from "@
 import { formatCurrency, formatDate, exportToCSV } from "@/lib/utils";
 import { expensesApi } from "@/lib/api-client";
 
-const ITEMS_PER_PAGE = 15;
+const ITEMS_PER_PAGE = 10;
 
 interface ExpenseListProps {
   expenses: Expense[];
@@ -208,8 +208,8 @@ export function ExpenseList({ expenses, onEdit, onAdd, onRefresh, isLoading }: E
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${showFilters
-                    ? "bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-300"
-                    : "bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  ? "bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-300"
+                  : "bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                   }`}
               >
                 <SlidersHorizontal size={14} />
@@ -365,8 +365,8 @@ export function ExpenseList({ expenses, onEdit, onAdd, onRefresh, isLoading }: E
                           key={page}
                           onClick={() => setCurrentPage(page as number)}
                           className={`min-w-[32px] h-8 rounded-lg text-xs font-medium transition-colors ${safeCurrentPage === page
-                              ? "bg-teal-500 text-white shadow-sm"
-                              : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                            ? "bg-teal-500 text-white shadow-sm"
+                            : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                             }`}
                         >
                           {page}
