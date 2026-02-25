@@ -156,7 +156,7 @@ export function ExpenseModal({ isOpen, onClose, onSuccess, expense }: ExpenseMod
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
-                  className="grid grid-cols-2 gap-4"
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-4"
                 >
                   <Input
                     label="Amount"

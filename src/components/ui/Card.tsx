@@ -16,7 +16,7 @@ export function Card({ children, className = "", padding = "md" }: CardProps) {
 
   return (
     <div
-      className={`bg-white rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-6 ${className}`}
+      className={`bg-white rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-5 lg:p-6 ${className}`}
     >
       {children}
     </div>
@@ -66,15 +66,15 @@ export function StatCard({ title, value, subtitle, icon, trend, color = "green" 
         {icon}
       </div>
       {/* Mobile: icon + text in a row */}
-      <div className="flex items-center gap-3 sm:hidden">
+      <div className="flex items-center gap-2 sm:hidden">
         <div
-          className={`w-9 h-9 rounded-xl ${bgColors[color]} ${textColors[color]} flex items-center justify-center flex-shrink-0`}
+          className={`w-8 h-8 rounded-lg ${bgColors[color]} ${textColors[color]} flex items-center justify-center flex-shrink-0`}
         >
-          {icon}
+          {React.cloneElement(icon as any, { size: 16 })}
         </div>
         <div className="min-w-0">
-          <p className="text-xs font-medium text-slate-500 leading-tight">{title}</p>
-          <p className="text-base font-bold text-slate-800 mt-0.5 break-words leading-snug">{value}</p>
+          <p className="text-[10px] font-medium text-slate-500 leading-tight truncate">{title}</p>
+          <p className="text-sm font-bold text-slate-800 mt-0.5 break-words leading-tight">{value}</p>
         </div>
       </div>
       {/* Desktop: stacked text */}

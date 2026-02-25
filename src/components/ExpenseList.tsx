@@ -300,10 +300,8 @@ function ExpenseRow({ expense, onEdit, onDelete, isDeleting }: ExpenseRowProps) 
       </div>
 
       {/* Actions */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        whileHover={{ opacity: 1 }}
-        className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+      <div
+        className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex-shrink-0"
       >
         <motion.button
           whileHover={{ scale: 1.1 }}
@@ -328,7 +326,7 @@ function ExpenseRow({ expense, onEdit, onDelete, isDeleting }: ExpenseRowProps) 
             <Trash2 size={14} />
           )}
         </motion.button>
-      </motion.div>
-    </motion.div>
+      </div>
+    </motion.div >
   );
 }

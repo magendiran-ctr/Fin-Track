@@ -79,7 +79,7 @@ export function Dashboard({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-3xl sm:text-4xl lg:text-5xl font-bold mt-1 text-white"
+              className="text-2xl sm:text-4xl lg:text-5xl font-bold mt-1 text-white"
             >
               {formatCurrency(thisMonthTotal)}
             </motion.p>
