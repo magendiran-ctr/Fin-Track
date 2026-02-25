@@ -1,18 +1,31 @@
 "use client";
 
-// Expense list with filters and actions - Fintech-inspired design
+// Expense list with compact search, inline filters, and pagination
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Filter, Edit2, Trash2, Plus, Download, SlidersHorizontal } from "lucide-react";
+import {
+  Search,
+  Filter,
+  Edit2,
+  Trash2,
+  Plus,
+  Download,
+  SlidersHorizontal,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
-import { ExpenseItemSkeleton } from "@/components/ui/Skeleton";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
 import { Expense, EXPENSE_CATEGORIES, ExpenseCategory, CATEGORY_COLORS } from "@/lib/types";
 import { formatCurrency, formatDate, exportToCSV } from "@/lib/utils";
 import { expensesApi } from "@/lib/api-client";
+
+const ITEMS_PER_PAGE = 15;
 
 interface ExpenseListProps {
   expenses: Expense[];
@@ -29,23 +42,55 @@ export function ExpenseList({ expenses, onEdit, onAdd, onRefresh, isLoading }: E
   const [endDate, setEndDate] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Apply client-side filters
-  const filtered = expenses.filter((expense) => {
-    if (categoryFilter !== "All" && expense.category !== categoryFilter) return false;
-    if (startDate && expense.date < startDate) return false;
-    if (endDate && expense.date > endDate) return false;
-    if (search) {
-      const q = search.toLowerCase();
-      if (
-        !expense.title.toLowerCase().includes(q) &&
-        !expense.category.toLowerCase().includes(q) &&
-        !(expense.notes && expense.notes.toLowerCase().includes(q))
-      )
-        return false;
-    }
-    return true;
-  });
+  const filtered = useMemo(() => {
+    const result = expenses.filter((expense) => {
+      if (categoryFilter !== "All" && expense.category !== categoryFilter) return false;
+      if (startDate && expense.date < startDate) return false;
+      if (endDate && expense.date > endDate) return false;
+      if (search) {
+        const q = search.toLowerCase();
+        if (
+          !expense.title.toLowerCase().includes(q) &&
+          !expense.category.toLowerCase().includes(q) &&
+          !(expense.notes && expense.notes.toLowerCase().includes(q))
+        )
+          return false;
+      }
+      return true;
+    });
+    return result;
+  }, [expenses, categoryFilter, startDate, endDate, search]);
+
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const paginatedExpenses = filtered.slice(
+    (safeCurrentPage - 1) * ITEMS_PER_PAGE,
+    safeCurrentPage * ITEMS_PER_PAGE
+  );
+  const startItem = filtered.length === 0 ? 0 : (safeCurrentPage - 1) * ITEMS_PER_PAGE + 1;
+  const endItem = Math.min(safeCurrentPage * ITEMS_PER_PAGE, filtered.length);
+
+  // Reset page when filters change
+  const handleSearchChange = (val: string) => {
+    setSearch(val);
+    setCurrentPage(1);
+  };
+  const handleCategoryChange = (val: ExpenseCategory | "All") => {
+    setCategoryFilter(val);
+    setCurrentPage(1);
+  };
+  const handleStartDateChange = (val: string) => {
+    setStartDate(val);
+    setCurrentPage(1);
+  };
+  const handleEndDateChange = (val: string) => {
+    setEndDate(val);
+    setCurrentPage(1);
+  };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this expense?")) return;
@@ -75,11 +120,28 @@ export function ExpenseList({ expenses, onEdit, onAdd, onRefresh, isLoading }: E
     { value: "All", label: "All Categories" },
     ...EXPENSE_CATEGORIES.map((cat) => ({
       value: cat,
-      label: cat, // The icon will be handled separately in the dropdown if it was custom, but here it's labels
+      label: cat,
     })),
   ];
 
   const hasActiveFilters = search || categoryFilter !== "All" || startDate || endDate;
+
+  // Page numbers to show
+  const getPageNumbers = () => {
+    const pages: (number | "...")[] = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (safeCurrentPage > 3) pages.push("...");
+      for (let i = Math.max(2, safeCurrentPage - 1); i <= Math.min(totalPages - 1, safeCurrentPage + 1); i++) {
+        pages.push(i);
+      }
+      if (safeCurrentPage < totalPages - 2) pages.push("...");
+      pages.push(totalPages);
+    }
+    return pages;
+  };
 
   return (
     <div className="space-y-4">
@@ -107,36 +169,56 @@ export function ExpenseList({ expenses, onEdit, onAdd, onRefresh, isLoading }: E
         </div>
       </motion.div>
 
-      {/* Filters toggle and search */}
+      {/* Search + Filter Row */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
         <Card padding="sm">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <div className="flex items-center gap-2">
+            {/* Compact Search */}
+            <div className="relative w-48 sm:w-56 flex-shrink-0">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search expenses..."
+                placeholder="Search..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/50"
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="w-full pl-8 pr-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/50"
               />
             </div>
-            <Button
-              variant={showFilters ? "primary" : "secondary"}
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-              className={showFilters ? "" : "sm:hidden"}
-            >
-              <SlidersHorizontal size={15} />
-              Filters
-              {hasActiveFilters && (
-                <span className="ml-1 w-2 h-2 rounded-full bg-teal-500" />
-              )}
-            </Button>
+
+            {/* Spacer */}
+            <div className="flex-1" />
+
+            {/* Right side: Category dropdown + Filter toggle */}
+            <div className="flex items-center gap-2">
+              <div className="hidden sm:block w-40">
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => handleCategoryChange(e.target.value as ExpenseCategory | "All")}
+                  className="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/50"
+                >
+                  {categoryOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${showFilters
+                    ? "bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-300"
+                    : "bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  }`}
+              >
+                <SlidersHorizontal size={14} />
+                <span className="hidden sm:inline">Filters</span>
+                {hasActiveFilters && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Expandable filters */}
@@ -149,25 +231,28 @@ export function ExpenseList({ expenses, onEdit, onAdd, onRefresh, isLoading }: E
                 transition={{ duration: 0.2 }}
                 className="overflow-hidden"
               >
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-3 mt-3 border-t border-slate-200 dark:border-slate-700">
-                  <Select
-                    value={categoryFilter}
-                    onChange={(e) => setCategoryFilter(e.target.value as ExpenseCategory | "All")}
-                    options={categoryOptions}
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 mt-3 border-t border-slate-200 dark:border-slate-700">
+                  {/* Category on mobile */}
+                  <div className="sm:hidden">
+                    <Select
+                      value={categoryFilter}
+                      onChange={(e) => handleCategoryChange(e.target.value as ExpenseCategory | "All")}
+                      options={categoryOptions}
+                    />
+                  </div>
                   <Input
                     type="date"
                     placeholder="Start date"
                     value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
+                    onChange={(e) => handleStartDateChange(e.target.value)}
                   />
                   <Input
                     type="date"
                     placeholder="End date"
                     value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
+                    onChange={(e) => handleEndDateChange(e.target.value)}
                   />
-                  {(hasActiveFilters) && (
+                  {hasActiveFilters && (
                     <Button
                       variant="ghost"
                       size="sm"
@@ -176,6 +261,7 @@ export function ExpenseList({ expenses, onEdit, onAdd, onRefresh, isLoading }: E
                         setStartDate("");
                         setEndDate("");
                         setSearch("");
+                        setCurrentPage(1);
                       }}
                     >
                       Clear Filters
@@ -221,26 +307,95 @@ export function ExpenseList({ expenses, onEdit, onAdd, onRefresh, isLoading }: E
               )}
             </div>
           ) : (
-            <div className="divide-y divide-slate-100 dark:divide-slate-800">
-              <AnimatePresence>
-                {filtered.map((expense, index) => (
-                  <motion.div
-                    key={expense.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ delay: index * 0.03 }}
-                  >
-                    <ExpenseRow
-                      expense={expense}
-                      onEdit={() => onEdit(expense)}
-                      onDelete={() => handleDelete(expense.id)}
-                      isDeleting={deletingId === expense.id}
-                    />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
+            <>
+              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                <AnimatePresence>
+                  {paginatedExpenses.map((expense, index) => (
+                    <motion.div
+                      key={expense.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ delay: index * 0.02 }}
+                    >
+                      <ExpenseRow
+                        expense={expense}
+                        onEdit={() => onEdit(expense)}
+                        onDelete={() => handleDelete(expense.id)}
+                        isDeleting={deletingId === expense.id}
+                      />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 sm:px-6 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Showing <span className="font-medium text-slate-700 dark:text-slate-200">{startItem}–{endItem}</span> of{" "}
+                    <span className="font-medium text-slate-700 dark:text-slate-200">{filtered.length}</span>
+                  </p>
+                  <div className="flex items-center gap-1">
+                    {/* First */}
+                    <button
+                      onClick={() => setCurrentPage(1)}
+                      disabled={safeCurrentPage === 1}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      title="First page"
+                    >
+                      <ChevronsLeft size={16} />
+                    </button>
+                    {/* Prev */}
+                    <button
+                      onClick={() => setCurrentPage(Math.max(1, safeCurrentPage - 1))}
+                      disabled={safeCurrentPage === 1}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      title="Previous page"
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+
+                    {/* Page numbers */}
+                    {getPageNumbers().map((page, idx) =>
+                      page === "..." ? (
+                        <span key={`dots-${idx}`} className="px-1 text-xs text-slate-400">…</span>
+                      ) : (
+                        <button
+                          key={page}
+                          onClick={() => setCurrentPage(page as number)}
+                          className={`min-w-[32px] h-8 rounded-lg text-xs font-medium transition-colors ${safeCurrentPage === page
+                              ? "bg-teal-500 text-white shadow-sm"
+                              : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                            }`}
+                        >
+                          {page}
+                        </button>
+                      )
+                    )}
+
+                    {/* Next */}
+                    <button
+                      onClick={() => setCurrentPage(Math.min(totalPages, safeCurrentPage + 1))}
+                      disabled={safeCurrentPage === totalPages}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      title="Next page"
+                    >
+                      <ChevronRight size={16} />
+                    </button>
+                    {/* Last */}
+                    <button
+                      onClick={() => setCurrentPage(totalPages)}
+                      disabled={safeCurrentPage === totalPages}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      title="Last page"
+                    >
+                      <ChevronsRight size={16} />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </Card>
       </motion.div>
@@ -329,6 +484,6 @@ function ExpenseRow({ expense, onEdit, onDelete, isDeleting }: ExpenseRowProps) 
           )}
         </motion.button>
       </div>
-    </motion.div >
+    </motion.div>
   );
 }
