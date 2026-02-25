@@ -88,8 +88,12 @@ export default function TopBar({
               onClick={() => setShowUserDropdown(!showUserDropdown)}
               className="flex items-center gap-2 p-1 pl-1 pr-2 rounded-full bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50 hover:bg-slate-200/50 transition-colors"
             >
-              <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-white font-bold text-xs">
-                {user?.name?.[0].toUpperCase() || "U"}
+              <div className="w-8 h-8 rounded-full overflow-hidden gradient-primary flex items-center justify-center text-white font-bold text-xs">
+                {user?.avatar ? (
+                  <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <span>{user?.name?.[0].toUpperCase() || "U"}</span>
+                )}
               </div>
               <ChevronDown className="w-4 h-4 text-slate-400" />
             </button>

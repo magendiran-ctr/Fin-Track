@@ -10,6 +10,7 @@ interface AuthUser {
   name: string;
   email: string;
   createdAt: string;
+  avatar?: string;
 }
 
 interface AuthContextType {
@@ -19,6 +20,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  updateAvatar: (avatarDataUrl: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -68,8 +70,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("expense_tracker_user");
   }, []);
 
+  const updateAvatar = useCallback((avatarDataUrl: string) => {
+    setUser(prev => {
+      if (!prev) return prev;
+      const updated = { ...prev, avatar: avatarDataUrl };
+      localStorage.setItem("expense_tracker_user", JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout, updateAvatar }}>
       {children}
     </AuthContext.Provider>
   );
