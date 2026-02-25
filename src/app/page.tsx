@@ -144,7 +144,6 @@ function HomeContent() {
       <div className="lg:ml-72">
         {/* Top Bar */}
         <TopBar
-          onAddExpense={handleAddExpense}
           isMobileOpen={isMobileOpen}
           setIsMobileOpen={setIsMobileOpen}
           filters={filters}

@@ -54,10 +54,10 @@ export async function GET(request: NextRequest) {
       expenses = expenses.filter((e) => e.category === category);
     }
     if (startDate) {
-      expenses = expenses.filter((e) => e.date >= startDate);
+      expenses = expenses.filter((e) => e.date.split('T')[0] >= startDate);
     }
     if (endDate) {
-      expenses = expenses.filter((e) => e.date <= endDate);
+      expenses = expenses.filter((e) => e.date.split('T')[0] <= endDate);
     }
     if (search) {
       const searchLower = search.toLowerCase();

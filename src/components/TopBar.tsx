@@ -11,12 +11,12 @@ import {
   LogOut,
   User as UserIcon,
   TrendingUp,
+  Plus,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { DateRangePicker } from "@/components/ui/DateRangePicker";
 
 interface TopBarProps {
-  onAddExpense: () => void;
   isMobileOpen: boolean;
   setIsMobileOpen: (open: boolean) => void;
   filters: { startDate: string; endDate: string };
