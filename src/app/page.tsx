@@ -16,6 +16,7 @@ import { ExpenseModal } from "@/components/ExpenseModal";
 import { Suspense } from "react";
 import { expensesApi, analyticsApi } from "@/lib/api-client";
 import { Expense, AnalyticsSummary } from "@/lib/types";
+import { formatCurrency } from "@/lib/utils";
 
 type Tab = "dashboard" | "expenses" | "analytics" | "settings";
 
@@ -109,6 +110,8 @@ function HomeContent() {
     handleRefresh();
   };
 
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
   // Show loading while checking auth
   if (authLoading || !mounted) {
     return (
@@ -136,12 +139,16 @@ function HomeContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       {/* Sidebar */}
-      <Sidebar />
+      <Sidebar isMobileOpen={isMobileOpen} setIsMobileOpen={setIsMobileOpen} />
 
       {/* Main content area */}
       <div className="lg:ml-72">
         {/* Top Bar */}
-        <TopBar onAddExpense={handleAddExpense} />
+        <TopBar
+          onAddExpense={handleAddExpense}
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
+        />
 
         {/* Page Content */}
         <main className="p-4 lg:p-6 pb-24 lg:pb-6">
@@ -213,9 +220,9 @@ function HomeContent() {
                         <h3 className="font-semibold text-slate-800 dark:text-slate-100 mb-4">Summary</h3>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                           {[
-                            { label: "Total Spent", value: `₹${analytics.totalAmount.toFixed(2)}` },
+                            { label: "Total Spent", value: formatCurrency(analytics.totalAmount) },
                             { label: "Transactions", value: String(analytics.totalExpenses) },
-                            { label: "Avg. per Transaction", value: `₹${analytics.averageExpense.toFixed(2)}` },
+                            { label: "Avg. per Transaction", value: formatCurrency(analytics.averageExpense) },
                             { label: "Top Category", value: analytics.topCategory || "N/A" },
                           ].map((stat, index) => (
                             <motion.div
@@ -282,8 +289,8 @@ function HomeContent() {
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors ${activeTab === tab
-                  ? "text-teal-600 dark:text-teal-400"
-                  : "text-slate-500 dark:text-slate-400"
+                ? "text-teal-600 dark:text-teal-400"
+                : "text-slate-500 dark:text-slate-400"
                 }`}
             >
               <Icon className="w-5 h-5" />

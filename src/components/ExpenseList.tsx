@@ -261,7 +261,7 @@ function ExpenseRow({ expense, onEdit, onDelete, isDeleting }: ExpenseRowProps) 
   return (
     <motion.div
       whileHover={{ backgroundColor: "rgba(0,0,0,0.02)" }}
-      className="flex items-center gap-4 px-6 py-4 transition-colors group"
+      className="flex items-center gap-3 px-4 sm:px-6 py-4 transition-colors group"
     >
       {/* Category icon */}
       <motion.div
@@ -274,10 +274,10 @@ function ExpenseRow({ expense, onEdit, onDelete, isDeleting }: ExpenseRowProps) 
 
       {/* Details */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <p className="font-medium text-slate-800 dark:text-slate-100 truncate">{expense.title}</p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+          <p className="font-medium text-slate-800 dark:text-slate-100 truncate text-sm sm:text-base">{expense.title}</p>
           <span
-            className="text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0"
+            className="hidden sm:inline-block text-[10px] px-2 py-0.5 rounded-full font-medium flex-shrink-0"
             style={{
               backgroundColor: `${color}15`,
               color: color,
@@ -287,16 +287,18 @@ function ExpenseRow({ expense, onEdit, onDelete, isDeleting }: ExpenseRowProps) 
           </span>
         </div>
         <div className="flex items-center gap-2 mt-0.5">
-          <p className="text-xs text-slate-400 dark:text-slate-500">{formatDate(expense.date)}</p>
+          <p className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500">{formatDate(expense.date)}</p>
+          <span className="sm:hidden text-[10px] text-slate-400">•</span>
+          <span className="sm:hidden text-[10px] font-medium" style={{ color }}>{expense.category}</span>
           {expense.notes && (
-            <p className="text-xs text-slate-400 dark:text-slate-500 truncate">· {expense.notes}</p>
+            <p className="hidden sm:block text-xs text-slate-400 dark:text-slate-500 truncate">· {expense.notes}</p>
           )}
         </div>
       </div>
 
-      {/* Amount */}
+      {/* Amount and Actions */}
       <div className="text-right flex-shrink-0">
-        <p className="font-semibold text-slate-800 dark:text-slate-100">{formatCurrency(expense.amount)}</p>
+        <p className="font-semibold text-slate-800 dark:text-slate-100 text-sm sm:text-base">{formatCurrency(expense.amount)}</p>
       </div>
 
       {/* Actions */}

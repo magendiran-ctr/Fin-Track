@@ -24,10 +24,14 @@ const navItems = [
   { href: "/?tab=settings", label: "Settings", icon: Settings },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  isMobileOpen: boolean;
+  setIsMobileOpen: (open: boolean) => void;
+}
+
+export default function Sidebar({ isMobileOpen, setIsMobileOpen }: SidebarProps) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isHovered, setIsHovered] = useState<string | null>(null);
 
   const isActive = (href: string) => {
@@ -37,18 +41,6 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile menu button */}
-      <button
-        onClick={() => setIsMobileOpen(!isMobileOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-xl glass btn-press"
-        aria-label="Toggle menu"
-      >
-        {isMobileOpen ? (
-          <X className="w-6 h-6 text-slate-700 dark:text-slate-200" />
-        ) : (
-          <Menu className="w-6 h-6 text-slate-700 dark:text-slate-200" />
-        )}
-      </button>
 
       {/* Sidebar backdrop for mobile */}
       <AnimatePresence>
