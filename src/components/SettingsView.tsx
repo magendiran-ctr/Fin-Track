@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import {
     User,
@@ -9,13 +9,37 @@ import {
     Globe,
     Shield,
     Smartphone,
-    Check
+    Check,
+    Loader2
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/Button";
 
 export function SettingsView() {
     const { user } = useAuth();
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveSuccess, setSaveSuccess] = useState(false);
+
+    const [notifications, setNotifications] = useState({
+        daily: true,
+        weekly: true,
+        login: true,
+        offers: false
+    });
+
+    const handleToggle = (key: keyof typeof notifications) => {
+        setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
+    };
+
+    const handleSave = async () => {
+        setIsSaving(true);
+        setSaveSuccess(false);
+        // Mock API call
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        setIsSaving(false);
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 3000);
+    };
 
     const sections = [
         {
@@ -52,9 +76,22 @@ export function SettingsView() {
 
     return (
         <div className="space-y-6 max-w-4xl">
-            <div className="flex flex-col gap-1">
-                <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 font-outfit">Settings</h2>
-                <p className="text-slate-500 dark:text-slate-400">Manage your account preferences and security.</p>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex flex-col gap-1">
+                    <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 font-outfit">Settings</h2>
+                    <p className="text-slate-500 dark:text-slate-400">Manage your account preferences and security.</p>
+                </div>
+                <Button
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className="sm:w-32 justify-center"
+                >
+                    {isSaving ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : saveSuccess ? (
+                        <Check className="w-4 h-4" />
+                    ) : "Save Changes"}
+                </Button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -115,15 +152,22 @@ export function SettingsView() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {[
-                            "Daily Spending Alert",
-                            "Weekly Summary Report",
-                            "New Login Alert",
-                            "Promotional Offers"
+                            { id: "daily", label: "Daily Spending Alert" },
+                            { id: "weekly", label: "Weekly Summary Report" },
+                            { id: "login", label: "New Login Alert" },
+                            { id: "offers", label: "Promotional Offers" }
                         ].map((pref) => (
-                            <div key={pref} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                                <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{pref}</span>
-                                <div className="w-10 h-5 bg-teal-500 rounded-full relative cursor-pointer">
-                                    <div className="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-all" />
+                            <div key={pref.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                                <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{pref.label}</span>
+                                <div
+                                    onClick={() => handleToggle(pref.id as keyof typeof notifications)}
+                                    className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors duration-200 ${notifications[pref.id as keyof typeof notifications] ? "bg-teal-500" : "bg-slate-300 dark:bg-slate-700"
+                                        }`}
+                                >
+                                    <motion.div
+                                        animate={{ x: notifications[pref.id as keyof typeof notifications] ? 20 : 2 }}
+                                        className="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-sm"
+                                    />
                                 </div>
                             </div>
                         ))}
