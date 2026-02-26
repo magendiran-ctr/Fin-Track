@@ -1,6 +1,8 @@
 // Utility functions for the expense tracker
 
 import { Expense, MonthlyAnalytics, CategoryAnalytics, AnalyticsSummary, ExpenseCategory, EXPENSE_CATEGORIES } from "./types";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 // Format currency
 export function formatCurrency(amount: number): string {
@@ -106,6 +108,89 @@ export function calculateAnalytics(expenses: Expense[]): AnalyticsSummary {
     monthlyData,
     categoryData,
   };
+}
+
+// Export expenses to PDF
+export function exportToPDF(expenses: Expense[]): void {
+  const doc = new jsPDF();
+
+  // Calculate summary
+  const totalAmount = expenses.reduce((sum, e) => sum + e.amount, 0);
+  const categories = new Set(expenses.map(e => e.category));
+
+  // --- Header Section ---
+  doc.setFillColor(15, 118, 110); // Teal 600 background for a header bar
+  doc.rect(0, 0, 210, 40, "F");
+
+  // Logo: FinTracker
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(28);
+  doc.setTextColor(255, 255, 255);
+  doc.text("Fin", 14, 26);
+  doc.setTextColor(204, 251, 241); // Teal 100
+  doc.text("Tracker", 26, 26);
+
+  // Report Title
+  doc.setFontSize(14);
+  doc.setTextColor(255, 255, 255);
+  doc.text("Expense Report", 145, 26);
+
+  // --- Summary Section ---
+  doc.setFontSize(11);
+  doc.setTextColor(71, 85, 105); // Slate 600
+  doc.text(`Generated on: ${formatDate(new Date().toISOString())}`, 14, 50);
+  doc.text(`Total Expenses: ${expenses.length}`, 14, 58);
+  doc.text(`Categories: ${categories.size}`, 145, 58);
+
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text(`Total Amount: ${formatCurrency(totalAmount).replace(/₹/g, "INR ")}`, 14, 68);
+
+  // Line separator
+  doc.setDrawColor(226, 232, 240); // Slate 200
+  doc.setLineWidth(0.5);
+  doc.line(14, 75, 196, 75);
+
+  // --- Table Section ---
+  const tableColumn = ["Date", "Title", "Category", "Amount", "Notes"];
+  const tableRows: any[] = [];
+
+  expenses.forEach((e) => {
+    const expenseData = [
+      formatDate(e.date),
+      e.title,
+      e.category,
+      formatCurrency(e.amount).replace(/₹/g, "INR"), // Replacing symbol for PDF compatibility
+      e.notes || "",
+    ];
+    tableRows.push(expenseData);
+  });
+
+  doc.setFont("helvetica", "normal");
+
+  autoTable(doc, {
+    head: [tableColumn],
+    body: tableRows,
+    startY: 85,
+    styles: {
+      fontSize: 10,
+      cellPadding: 5,
+      textColor: [51, 65, 85], // Slate 700
+      lineColor: [226, 232, 240],
+      lineWidth: 0.1,
+    },
+    headStyles: {
+      fillColor: [15, 118, 110], // Teal 600
+      textColor: 255,
+      fontStyle: 'bold',
+    },
+    alternateRowStyles: {
+      fillColor: [248, 250, 252] // Slate 50
+    },
+    margin: { top: 85 }
+  });
+
+  doc.save(`FinTracker-Expenses-${new Date().toISOString().split("T")[0]}.pdf`);
 }
 
 // Export expenses to CSV

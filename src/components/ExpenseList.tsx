@@ -22,7 +22,7 @@ import { Input, Select } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
 import { Expense, EXPENSE_CATEGORIES, ExpenseCategory, CATEGORY_COLORS } from "@/lib/types";
-import { formatCurrency, formatDate, exportToCSV } from "@/lib/utils";
+import { formatCurrency, formatDate, exportToCSV, exportToPDF } from "@/lib/utils";
 import { expensesApi } from "@/lib/api-client";
 
 const ITEMS_PER_PAGE = 10;
@@ -116,6 +116,10 @@ export function ExpenseList({ expenses, onEdit, onAdd, onRefresh, isLoading }: E
     URL.revokeObjectURL(url);
   };
 
+  const handleExportPDF = () => {
+    exportToPDF(filtered);
+  };
+
   const categoryOptions = [
     { value: "All", label: "All Categories" },
     ...EXPENSE_CATEGORIES.map((cat) => ({
@@ -161,6 +165,10 @@ export function ExpenseList({ expenses, onEdit, onAdd, onRefresh, isLoading }: E
           <Button variant="secondary" size="sm" onClick={handleExportCSV}>
             <Download size={15} />
             Export CSV
+          </Button>
+          <Button variant="secondary" size="sm" onClick={handleExportPDF}>
+            <Download size={15} />
+            Export PDF
           </Button>
           <Button variant="primary" size="sm" onClick={onAdd}>
             <Plus size={15} />
