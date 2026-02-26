@@ -8,7 +8,7 @@ import autoTable from "jspdf-autotable";
 export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
-    currency: "INR",
+    currency: "₹",
     minimumFractionDigits: 2,
   }).format(amount);
 }
