@@ -127,8 +127,8 @@ export function exportToPDF(expenses: Expense[]): void {
   doc.setFontSize(28);
   doc.setTextColor(255, 255, 255);
   doc.text("Fin", 14, 26);
-  doc.setTextColor(204, 251, 241); // Teal 100
-  doc.text("Tracker", 26, 26);
+  doc.setTextColor(134, 239, 172); // Green-300 accent for Tracker
+  doc.text("Tracker", 24, 26); // Adjusted alignment
 
   // Report Title
   doc.setFontSize(14);
@@ -144,7 +144,7 @@ export function exportToPDF(expenses: Expense[]): void {
 
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
-  doc.text(`Total Amount: ${formatCurrency(totalAmount).replace(/₹/g, "INR ")}`, 14, 68);
+  doc.text(`Total Amount: Rs. ${totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, 14, 68);
 
   // Line separator
   doc.setDrawColor(226, 232, 240); // Slate 200
@@ -160,7 +160,7 @@ export function exportToPDF(expenses: Expense[]): void {
       formatDate(e.date),
       e.title,
       e.category,
-      formatCurrency(e.amount).replace(/₹/g, "INR"), // Replacing symbol for PDF compatibility
+      `Rs. ${e.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`,
       e.notes || "",
     ];
     tableRows.push(expenseData);

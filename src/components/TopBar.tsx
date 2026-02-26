@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { DateRangePicker } from "@/components/ui/DateRangePicker";
+import { CategoryIcon } from "@/components/ui/CategoryIcon";
 
 interface TopBarProps {
   isMobileOpen: boolean;
@@ -32,6 +33,7 @@ export default function TopBar({
   const { user, logout } = useAuth();
   const [isDark, setIsDark] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   const toggleDarkMode = () => {
     setIsDark(!isDark);
@@ -112,7 +114,13 @@ export default function TopBar({
                       <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{user?.name || "User"}</p>
                       <p className="text-xs text-slate-500 truncate">{user?.email}</p>
                     </div>
-                    <button className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    <button
+                      onClick={() => {
+                        setShowProfileModal(true);
+                        setShowUserDropdown(false);
+                      }}
+                      className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    >
                       <UserIcon className="w-4 h-4" />
                       View Profile
                     </button>
@@ -133,6 +141,84 @@ export default function TopBar({
           </div>
         </div>
       </div>
+
+      {/* Profile Modal */}
+      <AnimatePresence>
+        {showProfileModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowProfileModal(false)}
+              className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-sm glass card shadow-2xl rounded-2xl overflow-hidden bg-white dark:bg-slate-900"
+            >
+              {/* Header */}
+              <div className="relative h-24 gradient-primary">
+                <button
+                  onClick={() => setShowProfileModal(false)}
+                  className="absolute top-4 right-4 p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Avatar */}
+              <div className="absolute top-12 left-1/2 -translate-x-1/2">
+                <div className="w-24 h-24 rounded-full border-4 border-white dark:border-slate-900 bg-white dark:bg-slate-800 flex items-center justify-center shadow-lg overflow-hidden gradient-secondary text-white text-3xl font-bold">
+                  {user?.avatar ? (
+                    <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{user?.name?.[0].toUpperCase() || "U"}</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Details */}
+              <div className="pt-14 pb-6 px-6 text-center">
+                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-1">
+                  {user?.name || "User"}
+                </h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                  {user?.email}
+                </p>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                    <span className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                      <UserIcon className="w-4 h-4" /> Account Type
+                    </span>
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                      Free Plan
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                    <span className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4" /> Member Since
+                    </span>
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                      {new Date().toLocaleDateString("en-IN", { month: "short", year: "numeric" })}
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setShowProfileModal(false)}
+                  className="w-full mt-6 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
