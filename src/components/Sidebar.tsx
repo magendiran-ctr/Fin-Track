@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
@@ -21,7 +21,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Logo } from "@/components/ui/Logo";
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/?tab=dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/?tab=expenses", label: "Expenses", icon: IndianRupee },
   { href: "/?tab=analytics", label: "Analytics", icon: PieChart },
   { href: "/?tab=settings", label: "Settings", icon: Settings },
@@ -36,13 +36,9 @@ interface SidebarProps {
 
 export default function Sidebar({ isMobileOpen, setIsMobileOpen }: SidebarProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { user, logout } = useAuth();
   const [isHovered, setIsHovered] = useState<string | null>(null);
-
-  const isActive = (href: string) => {
-    if (href === "/") return pathname === "/";
-    return pathname + "?tab=" === href.split("?")[1]?.split("=")[1] ? pathname : false;
-  };
 
   return (
     <>
@@ -91,9 +87,9 @@ export default function Sidebar({ isMobileOpen, setIsMobileOpen }: SidebarProps)
 
           {navItems.map((item, index) => {
             const Icon = item.icon;
-            const isItemActive = pathname === "/" && item.href === "/"
-              ? pathname === "/"
-              : pathname === item.href.split("?")[0];
+            const tabParam = new URLSearchParams(item.href.split("?")[1] || "").get("tab");
+            const currentTab = searchParams.get("tab") || "dashboard";
+            const isItemActive = tabParam === currentTab;
 
             return (
               <motion.div

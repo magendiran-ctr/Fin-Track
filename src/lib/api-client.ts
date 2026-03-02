@@ -36,7 +36,7 @@ export const authApi = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, password }),
     });
-    return handleResponse<{ token: string; user: { id: string; name: string; email: string; createdAt: string } }>(response);
+    return handleResponse<{ token: string; user: { id: string; User_id: string | null; name: string; email: string; createdAt: string } }>(response);
   },
 
   async login(email: string, password: string) {
@@ -45,7 +45,7 @@ export const authApi = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
-    return handleResponse<{ token: string; user: { id: string; name: string; email: string; createdAt: string } }>(response);
+    return handleResponse<{ token: string; user: { id: string; User_id: string | null; name: string; email: string; createdAt: string } }>(response);
   },
 };
 

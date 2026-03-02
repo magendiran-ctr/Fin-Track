@@ -7,6 +7,7 @@ import { authApi } from "@/lib/api-client";
 
 interface AuthUser {
   id: string;
+  User_id: string | null;
   name: string;
   email: string;
   createdAt: string;
