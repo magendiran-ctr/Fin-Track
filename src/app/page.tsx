@@ -40,9 +40,22 @@ function HomeContent() {
   });
   const [mounted, setMounted] = useState(false);
 
-  // Fix hydration mismatch
+  // Fix hydration mismatch and load persisted filters
   useEffect(() => {
     setMounted(true);
+    // Load filters from localStorage
+    const savedFilters = localStorage.getItem('expense_tracker_filters');
+    if (savedFilters) {
+      try {
+        const parsedFilters = JSON.parse(savedFilters);
+        setFilters({
+          startDate: parsedFilters.startDate || filters.startDate,
+          endDate: parsedFilters.endDate || filters.endDate,
+        });
+      } catch (e) {
+        console.error('Failed to parse saved filters:', e);
+      }
+    }
   }, []);
 
   // Get tab from URL params
@@ -52,6 +65,13 @@ function HomeContent() {
       setActiveTab(tab);
     }
   }, [searchParams]);
+
+  // Persist filters to localStorage whenever they change
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem('expense_tracker_filters', JSON.stringify(filters));
+    }
+  }, [filters, mounted]);
 
   // Redirect to login if not authenticated
   useEffect(() => {

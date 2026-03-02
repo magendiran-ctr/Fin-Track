@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
       createdAt: new Date().toISOString(),
     };
 
-    // Create user in database and get the actual created user (with DB ID and UUID)
+    // Create user in database and get the actual created user (with DB ID and User_id)
     console.log("Attempting to create user in DB:", { ...user, password: "[REDACTED]" });
     const createdUser = await db.createUser(user);
 

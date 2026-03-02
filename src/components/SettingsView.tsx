@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
     User,
     Lock,
@@ -11,6 +11,8 @@ import {
     Check,
     Loader2,
     X,
+    Eye,
+    EyeOff,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/Button";
@@ -24,6 +26,43 @@ export function SettingsView() {
     const [avatarSuccess, setAvatarSuccess] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    // Modal states
+    const [activeModal, setActiveModal] = useState<"profile" | "security" | "preferences" | null>(null);
+
+    // Profile form state
+    const [profileForm, setProfileForm] = useState({
+        name: user?.name || "",
+        email: user?.email || "",
+    });
+    const [profileSaving, setProfileSaving] = useState(false);
+    const [profileSuccess, setProfileSuccess] = useState(false);
+
+    // Security form state
+    const [securityForm, setSecurityForm] = useState({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+        twoFactorEnabled: false,
+    });
+    const [securitySaving, setSecuritySaving] = useState(false);
+    const [securitySuccess, setSecuritySuccess] = useState(false);
+    const [showPasswords, setShowPasswords] = useState({
+        current: false,
+        new: false,
+        confirm: false,
+    });
+
+    // Preferences form state
+    const [preferences, setPreferences] = useState({
+        currency: "INR",
+        language: "en-US",
+        theme: "light",
+        dateFormat: "DD/MM/YYYY",
+    });
+    const [preferencesSaving, setPreferencesSaving] = useState(false);
+    const [preferencesSuccess, setPreferencesSuccess] = useState(false);
+
+    // Notification preferences
     const [notifications, setNotifications] = useState({
         daily: true,
         weekly: true,
@@ -66,6 +105,55 @@ export function SettingsView() {
         if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
+    // Profile update handler
+    const handleProfileUpdate = async () => {
+        if (!profileForm.name.trim() || !profileForm.email.trim()) {
+            alert("Name and email are required");
+            return;
+        }
+        setProfileSaving(true);
+        await new Promise(r => setTimeout(r, 1500));
+        setProfileSaving(false);
+        setProfileSuccess(true);
+        setTimeout(() => {
+            setProfileSuccess(false);
+            setActiveModal(null);
+        }, 2000);
+    };
+
+    // Security update handler
+    const handleSecurityUpdate = async () => {
+        if (!securityForm.currentPassword) {
+            alert("Current password is required");
+            return;
+        }
+        if (securityForm.newPassword && securityForm.newPassword !== securityForm.confirmPassword) {
+            alert("New passwords don't match");
+            return;
+        }
+        setSecuritySaving(true);
+        await new Promise(r => setTimeout(r, 1500));
+        setSecuritySaving(false);
+        setSecuritySuccess(true);
+        setTimeout(() => {
+            setSecuritySuccess(false);
+            setSecurityForm({ currentPassword: "", newPassword: "", confirmPassword: "", twoFactorEnabled: false });
+            setActiveModal(null);
+        }, 2000);
+    };
+
+    // Preferences save handler
+    const handlePreferencesSave = async () => {
+        setPreferencesSaving(true);
+        await new Promise(r => setTimeout(r, 1500));
+        setPreferencesSaving(false);
+        setPreferencesSuccess(true);
+        setTimeout(() => {
+            setPreferencesSuccess(false);
+            setActiveModal(null);
+        }, 2000);
+    };
+
     const handleSave = async () => {
         setIsSaving(true);
         setSaveSuccess(false);
@@ -82,31 +170,22 @@ export function SettingsView() {
             title: "Account Information",
             icon: User,
             description: "Manage your personal details and account settings.",
-            items: [
-                { label: "Full Name", value: user?.name || "User", type: "text" },
-                { label: "Email Address", value: user?.email || "user@example.com", type: "text" },
-            ],
-            action: "Update Profile"
+            action: "Update Profile",
+            modal: "profile" as const,
         },
         {
             title: "Security",
             icon: Lock,
             description: "Keep your account secure with a strong password and 2FA.",
-            items: [
-                { label: "Password", value: "••••••••••••", type: "password" },
-                { label: "Two-Factor Auth", value: "Disabled", type: "status" },
-            ],
-            action: "Manage Security"
+            action: "Manage Security",
+            modal: "security" as const,
         },
         {
             title: "Preferences",
             icon: Globe,
             description: "Set your preferred currency and language.",
-            items: [
-                { label: "Currency", value: "Indian Rupee (₹)", type: "select" },
-                { label: "Language", value: "English (US)", type: "select" },
-            ],
-            action: "Save Preferences"
+            action: "Save Preferences",
+            modal: "preferences" as const,
         }
     ];
 
@@ -225,7 +304,7 @@ export function SettingsView() {
                 </div>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {sections.map((section, idx) => (
                     <motion.div
                         key={section.title}
@@ -245,20 +324,11 @@ export function SettingsView() {
                             {section.description}
                         </p>
 
-                        <div className="space-y-4 mb-6">
-                            {section.items.map((item) => (
-                                <div key={item.label} className="flex flex-col gap-1">
-                                    <span className="text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                                        {item.label}
-                                    </span>
-                                    <span className="text-sm text-slate-700 dark:text-slate-200 font-medium">
-                                        {item.value}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-
-                        <Button variant="secondary" className="w-full justify-center">
+                        <Button 
+                            variant="secondary" 
+                            className="w-full justify-center"
+                            onClick={() => setActiveModal(section.modal)}
+                        >
                             {section.action}
                         </Button>
                     </motion.div>
@@ -269,7 +339,7 @@ export function SettingsView() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="glass card p-6 md:col-span-2"
+                    className="glass card p-6 md:col-span-2 lg:col-span-3"
                 >
                     <div className="flex items-center gap-3 mb-6">
                         <div className="w-10 h-10 rounded-xl bg-cyan-50 dark:bg-cyan-900/20 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
@@ -304,6 +374,307 @@ export function SettingsView() {
                     </div>
                 </motion.div>
             </div>
+
+            {/* Modals */}
+            <AnimatePresence>
+                {/* Profile Update Modal */}
+                {activeModal === "profile" && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+                        onClick={() => setActiveModal(null)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white dark:bg-slate-800 rounded-2xl p-6 max-w-md w-full space-y-4"
+                        >
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">Update Profile</h3>
+                                <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-600">
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Full Name</label>
+                                    <input
+                                        type="text"
+                                        value={profileForm.name}
+                                        onChange={(e) => setProfileForm({...profileForm, name: e.target.value})}
+                                        className="w-full mt-1 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-teal-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email Address</label>
+                                    <input
+                                        type="email"
+                                        value={profileForm.email}
+                                        onChange={(e) => setProfileForm({...profileForm, email: e.target.value})}
+                                        className="w-full mt-1 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-teal-500"
+                                    />
+                                </div>
+                            </div>
+
+                            {profileSuccess && (
+                                <motion.p
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="text-sm text-teal-600 dark:text-teal-400 font-medium flex items-center gap-2"
+                                >
+                                    <Check className="w-4 h-4" /> Profile updated successfully!
+                                </motion.p>
+                            )}
+
+                            <div className="flex gap-3 pt-4">
+                                <Button
+                                    onClick={() => setActiveModal(null)}
+                                    variant="secondary"
+                                    className="flex-1"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={handleProfileUpdate}
+                                    disabled={profileSaving}
+                                    className="flex-1 justify-center"
+                                >
+                                    {profileSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Changes"}
+                                </Button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+
+                {/* Security Update Modal */}
+                {activeModal === "security" && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+                        onClick={() => setActiveModal(null)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white dark:bg-slate-800 rounded-2xl p-6 max-w-md w-full space-y-4 max-h-96 overflow-y-auto"
+                        >
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">Manage Security</h3>
+                                <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-600">
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Current Password</label>
+                                    <div className="relative mt-1">
+                                        <input
+                                            type={showPasswords.current ? "text" : "password"}
+                                            value={securityForm.currentPassword}
+                                            onChange={(e) => setSecurityForm({...securityForm, currentPassword: e.target.value})}
+                                            className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-teal-500"
+                                        />
+                                        <button
+                                            onClick={() => setShowPasswords({...showPasswords, current: !showPasswords.current})}
+                                            className="absolute right-3 top-2.5 text-slate-400"
+                                        >
+                                            {showPasswords.current ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">New Password</label>
+                                    <div className="relative mt-1">
+                                        <input
+                                            type={showPasswords.new ? "text" : "password"}
+                                            value={securityForm.newPassword}
+                                            onChange={(e) => setSecurityForm({...securityForm, newPassword: e.target.value})}
+                                            className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-teal-500"
+                                        />
+                                        <button
+                                            onClick={() => setShowPasswords({...showPasswords, new: !showPasswords.new})}
+                                            className="absolute right-3 top-2.5 text-slate-400"
+                                        >
+                                            {showPasswords.new ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Confirm Password</label>
+                                    <div className="relative mt-1">
+                                        <input
+                                            type={showPasswords.confirm ? "text" : "password"}
+                                            value={securityForm.confirmPassword}
+                                            onChange={(e) => setSecurityForm({...securityForm, confirmPassword: e.target.value})}
+                                            className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-teal-500"
+                                        />
+                                        <button
+                                            onClick={() => setShowPasswords({...showPasswords, confirm: !showPasswords.confirm})}
+                                            className="absolute right-3 top-2.5 text-slate-400"
+                                        >
+                                            {showPasswords.confirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900 rounded-lg">
+                                    <span className="text-sm font-medium text-slate-700 dark:text-slate-200">Two-Factor Authentication</span>
+                                    <div
+                                        onClick={() => setSecurityForm({...securityForm, twoFactorEnabled: !securityForm.twoFactorEnabled})}
+                                        className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors duration-200 ${securityForm.twoFactorEnabled ? "bg-teal-500" : "bg-slate-300 dark:bg-slate-700"}`}
+                                    >
+                                        <motion.div
+                                            animate={{ x: securityForm.twoFactorEnabled ? 20 : 2 }}
+                                            className="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-sm"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {securitySuccess && (
+                                <motion.p
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="text-sm text-teal-600 dark:text-teal-400 font-medium flex items-center gap-2"
+                                >
+                                    <Check className="w-4 h-4" /> Security settings updated!
+                                </motion.p>
+                            )}
+
+                            <div className="flex gap-3 pt-4">
+                                <Button
+                                    onClick={() => setActiveModal(null)}
+                                    variant="secondary"
+                                    className="flex-1"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={handleSecurityUpdate}
+                                    disabled={securitySaving}
+                                    className="flex-1 justify-center"
+                                >
+                                    {securitySaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Update Security"}
+                                </Button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+
+                {/* Preferences Modal */}
+                {activeModal === "preferences" && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+                        onClick={() => setActiveModal(null)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white dark:bg-slate-800 rounded-2xl p-6 max-w-md w-full space-y-4"
+                        >
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">Save Preferences</h3>
+                                <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-600">
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Currency</label>
+                                    <select
+                                        value={preferences.currency}
+                                        onChange={(e) => setPreferences({...preferences, currency: e.target.value})}
+                                        className="w-full mt-1 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-teal-500"
+                                    >
+                                        <option value="INR">Indian Rupee (₹)</option>
+                                        <option value="USD">US Dollar ($)</option>
+                                        <option value="EUR">Euro (€)</option>
+                                        <option value="GBP">British Pound (£)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Language</label>
+                                    <select
+                                        value={preferences.language}
+                                        onChange={(e) => setPreferences({...preferences, language: e.target.value})}
+                                        className="w-full mt-1 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-teal-500"
+                                    >
+                                        <option value="en-US">English (US)</option>
+                                        <option value="en-IN">English (India)</option>
+                                        <option value="hi-IN">Hindi</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Date Format</label>
+                                    <select
+                                        value={preferences.dateFormat}
+                                        onChange={(e) => setPreferences({...preferences, dateFormat: e.target.value})}
+                                        className="w-full mt-1 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-teal-500"
+                                    >
+                                        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Theme</label>
+                                    <select
+                                        value={preferences.theme}
+                                        onChange={(e) => setPreferences({...preferences, theme: e.target.value})}
+                                        className="w-full mt-1 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-teal-500"
+                                    >
+                                        <option value="light">Light</option>
+                                        <option value="dark">Dark</option>
+                                        <option value="auto">Auto</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {preferencesSuccess && (
+                                <motion.p
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="text-sm text-teal-600 dark:text-teal-400 font-medium flex items-center gap-2"
+                                >
+                                    <Check className="w-4 h-4" /> Preferences saved successfully!
+                                </motion.p>
+                            )}
+
+                            <div className="flex gap-3 pt-4">
+                                <Button
+                                    onClick={() => setActiveModal(null)}
+                                    variant="secondary"
+                                    className="flex-1"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={handlePreferencesSave}
+                                    disabled={preferencesSaving}
+                                    className="flex-1 justify-center"
+                                >
+                                    {preferencesSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Preferences"}
+                                </Button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

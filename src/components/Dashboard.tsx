@@ -4,7 +4,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { IndianRupee, TrendingUp, ShoppingBag, Calendar, Plus, TrendingDown } from "lucide-react";
+import { IndianRupee, TrendingUp, ShoppingBag, Calendar, Plus, TrendingDown, CalendarCheck } from "lucide-react";
 import { StatCard } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { CardSkeleton } from "@/components/ui/Skeleton";
@@ -112,7 +112,7 @@ export function Dashboard({
             title="Transactions"
             value={String(filteredExpenses.length)}
             subtitle="In period"
-            icon={<Calendar size={20} />}
+            icon={<CalendarCheck size={20} />}
             color="blue"
           />
         </motion.div>
