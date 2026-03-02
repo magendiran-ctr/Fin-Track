@@ -9,7 +9,6 @@ import { LayoutDashboard, Receipt, PieChart, Settings, CreditCard, Plus, IndianR
 import { useAuth } from "@/contexts/AuthContext";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
-import BottomNav from "@/components/BottomNav";
 import { Dashboard } from "@/components/Dashboard";
 import { ExpenseList } from "@/components/ExpenseList";
 import { AnalyticsCharts } from "@/components/AnalyticsCharts";
@@ -41,19 +40,9 @@ function HomeContent() {
   });
   const [mounted, setMounted] = useState(false);
 
-  // Fix hydration mismatch and load filters from localStorage
+  // Fix hydration mismatch
   useEffect(() => {
     setMounted(true);
-    // Load filters from localStorage if they exist
-    const savedFilters = localStorage.getItem('expense_tracker_filters');
-    if (savedFilters) {
-      try {
-        const parsedFilters = JSON.parse(savedFilters);
-        setFilters(parsedFilters);
-      } catch (err) {
-        console.error('Failed to parse saved filters:', err);
-      }
-    }
   }, []);
 
   // Get tab from URL params
@@ -61,9 +50,6 @@ function HomeContent() {
     const tab = searchParams.get("tab") as Tab | null;
     if (tab && ["dashboard", "expenses", "analytics", "settings", "subscription"].includes(tab)) {
       setActiveTab(tab);
-    } else if (!tab || tab === null) {
-      // Default to dashboard if no tab specified
-      setActiveTab("dashboard");
     }
   }, [searchParams]);
 
@@ -151,47 +137,39 @@ function HomeContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      {/* Sidebar - Desktop only */}
-      <div className="hidden lg:block">
-        <Sidebar isMobileOpen={isMobileOpen} setIsMobileOpen={setIsMobileOpen} />
-      </div>
+      {/* Sidebar */}
+      <Sidebar isMobileOpen={isMobileOpen} setIsMobileOpen={setIsMobileOpen} />
 
       {/* Main content area */}
       <div className="lg:ml-72">
-        {/* Top Bar - Desktop and tablet only */}
-        <div className="hidden sm:block">
-          <TopBar
-            isMobileOpen={isMobileOpen}
-            setIsMobileOpen={setIsMobileOpen}
-            filters={filters}
-            onFilterChange={(newFilters) => {
-              const updated = { ...filters, ...newFilters };
-              setFilters(updated);
-              // Save filters to localStorage
-              localStorage.setItem('expense_tracker_filters', JSON.stringify(updated));
-            }}
-          />
-        </div>
+        {/* Top Bar */}
+        <TopBar
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
+          filters={filters}
+          onFilterChange={(newFilters) => setFilters(prev => ({ ...prev, ...newFilters }))}
+        />
 
         {/* Page Content */}
-        <main className="p-4 lg:p-6 pb-28 sm:pb-6 lg:pb-6">
-          {/* Mobile Header with Filters */}
-          <div className="sm:hidden mb-4">
-            {/* Date Range Picker for mobile */}
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center justify-between mb-4 p-3 rounded-2xl bg-white/50 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50"
-            >
-              <div className="text-sm">
-                <p className="text-slate-700 dark:text-slate-200 font-medium">
-                  {new Date(filters.startDate).toLocaleDateString("en-IN", { month: "short", day: "numeric" })} - {new Date(filters.endDate).toLocaleDateString("en-IN", { month: "short", day: "numeric" })}
-                </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Spending Period</p>
-              </div>
-            </motion.div>
-          </div>
-
+        <main className="p-4 lg:p-6 pb-24 lg:pb-6">
+          {/* Mobile Greeting - visible only on small screens */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="md:hidden flex items-center gap-3 mb-6 p-4 rounded-2xl bg-white/50 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50"
+          >
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center shadow-md flex-shrink-0">
+              <TrendingUp className="w-5 h-5 text-white" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-slate-800 dark:text-slate-100 leading-none truncate">
+                Welcome, {user?.name?.split(" ")[0] || "there"} 👋
+              </p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
+              </p>
+            </div>
+          </motion.div>
 
           <AnimatePresence mode="wait">
             {activeTab === "dashboard" && (
@@ -344,7 +322,16 @@ function HomeContent() {
         </div>
       </nav>
 
-      {/* Floating Action Button moved to BottomNav */}
+      {/* Floating Action Button (FAB) - Added for convenience */}
+      <motion.button
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={handleAddExpense}
+        className="fixed bottom-24 right-6 lg:bottom-10 lg:right-10 w-14 h-14 rounded-full gradient-primary text-white shadow-xl shadow-teal-500/25 flex items-center justify-center z-40 lg:hidden"
+        aria-label="Add Expense"
+      >
+        <Plus className="w-6 h-6" />
+      </motion.button>
 
       {/* Expense Modal */}
       <ExpenseModal
@@ -356,9 +343,6 @@ function HomeContent() {
         onSuccess={handleModalSuccess}
         expense={editingExpense}
       />
-
-      {/* Bottom Navigation - Mobile only */}
-      <BottomNav onAddClick={handleAddExpense} />
     </div>
   );
 }
