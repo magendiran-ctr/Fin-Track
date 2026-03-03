@@ -12,6 +12,10 @@ import {
   User as UserIcon,
   TrendingUp,
   Plus,
+  TreeDeciduousIcon,
+  TrendingUpIcon,
+  TreePineIcon,
+  HdIcon,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { DateRangePicker } from "@/components/ui/DateRangePicker";
@@ -58,7 +62,7 @@ export default function TopBar({
         <div className="hidden md:flex items-center gap-3 flex-1">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center shadow-sm">
-              <TrendingUp className="w-3.5 h-3.5 text-white" />
+              <UserIcon className="w-3.5 h-3.5 text-white" />
             </div>
             <div>
               <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-none">
