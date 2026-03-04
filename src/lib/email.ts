@@ -11,6 +11,23 @@ const transporter = nodemailer.createTransport({
 });
 
 export async function sendResetEmail(to: string, userName: string, resetLink: string) {
+  const host = process.env.MAIL_HOST?.trim();
+  const port = process.env.MAIL_PORT?.trim();
+  const user = process.env.MAIL_USER?.trim();
+  const pass = process.env.MAIL_PASSWORD?.trim();
+
+  const hasPlaceholders =
+    !user ||
+    !pass ||
+    user.includes("your-email@gmail.com") ||
+    pass.includes("your-app-password-here");
+
+  if (!host || !port || hasPlaceholders) {
+    throw new Error("SMTP is not configured. Set MAIL_HOST, MAIL_PORT, MAIL_USER, and MAIL_PASSWORD.");
+  }
+
+  const safeName = userName?.trim() || "there";
+
   const mailOptions = {
     from: process.env.MAIL_FROM || "FinTrack <noreply@fintrack.com>",
     to,
@@ -47,7 +64,7 @@ export async function sendResetEmail(to: string, userName: string, resetLink: st
           <tr>
             <td style="padding:40px 40px 32px;">
               <h1 style="margin:0 0 8px;font-size:24px;font-weight:700;color:#0f172a;">Reset Your Password</h1>
-              <p style="margin:0 0 24px;font-size:16px;color:#475569;">Hi ${userName},</p>
+              <p style="margin:0 0 24px;font-size:16px;color:#475569;">Hi ${safeName},</p>
               <p style="margin:0 0 24px;font-size:15px;color:#64748b;line-height:1.6;">
                 We received a request to reset your <strong style="color:#0f172a;">FinTrack</strong> password.
                 Click the button below to create a new password. This link is valid for <strong>30 minutes</strong>.
