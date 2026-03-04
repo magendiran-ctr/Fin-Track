@@ -38,25 +38,39 @@ export async function POST(req: Request) {
     const isDev = process.env.NODE_ENV !== "production";
 
     let emailSent = false;
+    let emailErrorMsg = "";
     try {
       await sendResetEmail(normalizedEmail, user.name, resetLink);
       emailSent = true;
-    } catch (emailError) {
-      console.warn("Email sending failed:", emailError);
-      if (isDev) {
-        return NextResponse.json(
-          { message: "Reset email could not be sent. Check MAIL_USER / MAIL_PASSWORD in .env." },
-          { status: 500 }
-        );
+    } catch (emailError: any) {
+      emailErrorMsg = emailError.message || "Unknown error";
+      console.warn("--- RESET EMAIL FAILURE REPORT ---");
+      console.warn(`To: ${normalizedEmail}`);
+      console.warn(`Reset Link: ${resetLink}`);
+      console.warn(`Error: ${emailErrorMsg}`);
+      console.warn("---------------------------------");
+
+      if (!isDev) {
+        // In production, we don't leak the error but we log it
+        console.error("Email sending failed:", emailError);
       }
+    }
+
+    if (isDev && !emailSent) {
+      return NextResponse.json({
+        message: "Dev Mode: Email failed but reset link is below.",
+        resetLink: resetLink,
+        debug: {
+          error: emailErrorMsg,
+          hint: "Check MAIL_USER / MAIL_PASSWORD in .env. See .env.example for setup instructions."
+        }
+      });
     }
 
     return NextResponse.json({
       message: emailSent
         ? "Password reset email sent successfully."
         : "If that email is registered, a reset link has been sent.",
-      // Keep dev fallback for local testing only when email fails.
-      resetLink: !emailSent && isDev ? resetLink : undefined,
     });
   } catch (error) {
     console.error("Error in forgot-password API:", error);
