@@ -4,8 +4,8 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Mail, Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -19,6 +19,8 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const { login, user } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const resetSuccess = searchParams.get("reset") === "success";
 
   useEffect(() => {
     if (user) router.push("/");
@@ -51,6 +53,14 @@ export default function LoginPage() {
 
         {/* Card */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+          {/* Password reset success banner */}
+          {resetSuccess && (
+            <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm rounded-xl px-4 py-3 mb-6">
+              <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+              <span>Password updated successfully! Sign in with your new password.</span>
+            </div>
+          )}
+
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 mb-6">
               {error}
@@ -70,9 +80,17 @@ export default function LoginPage() {
             />
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-slate-700">
-                Password <span className="text-red-500">*</span>
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-slate-700">
+                  Password <span className="text-red-500">*</span>
+                </label>
+                <Link
+                  href="/forgot-password"
+                  className="text-xs text-emerald-600 hover:text-emerald-700 font-medium transition-colors"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <div className="relative">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
                   <Lock size={15} />
