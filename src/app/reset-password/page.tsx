@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Lock, Eye, EyeOff, CheckCircle, ArrowLeft, AlertTriangle } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/Button";
+import { Suspense } from "react";
 
 // ─── Password Strength ──────────────────────────────────────────────────────
 
@@ -46,11 +47,11 @@ function StrengthBar({ password }: { password: string }) {
   );
 }
 
-// ─── Page ────────────────────────────────────────────────────────────────────
+// ─── Content Component ───────────────────────────────────────────────────────
 
 type PageState = "loading" | "invalid" | "form" | "success";
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
   const router = useRouter();
@@ -132,12 +133,9 @@ export default function ResetPasswordPage() {
 
   const { score } = getStrength(password);
 
-  // ── Render states ──────────────────────────────────────────────────────────
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/20 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-8">
           <Logo size="lg" className="justify-center mb-4" />
           <h1 className="text-2xl font-bold text-slate-800">
@@ -152,10 +150,7 @@ export default function ResetPasswordPage() {
           </p>
         </div>
 
-        {/* Card */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
-
-          {/* Loading */}
           {pageState === "loading" && (
             <div className="flex flex-col items-center gap-4 py-6">
               <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
@@ -163,7 +158,6 @@ export default function ResetPasswordPage() {
             </div>
           )}
 
-          {/* Invalid / Expired */}
           {pageState === "invalid" && (
             <div className="space-y-5 text-center">
               <div className="flex justify-center">
@@ -180,7 +174,6 @@ export default function ResetPasswordPage() {
             </div>
           )}
 
-          {/* Password Form */}
           {pageState === "form" && (
             <form onSubmit={handleSubmit} className="space-y-5">
               {userName && (
@@ -195,7 +188,6 @@ export default function ResetPasswordPage() {
                 </div>
               )}
 
-              {/* New Password */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-medium text-slate-700">
                   New Password <span className="text-red-500">*</span>
@@ -224,7 +216,6 @@ export default function ResetPasswordPage() {
                 <StrengthBar password={password} />
               </div>
 
-              {/* Confirm Password */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-medium text-slate-700">
                   Confirm Password <span className="text-red-500">*</span>
@@ -241,8 +232,8 @@ export default function ResetPasswordPage() {
                     required
                     disabled={isLoading}
                     className={`w-full rounded-xl border bg-white pl-10 pr-10 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent hover:border-slate-300 disabled:opacity-50 ${confirmPassword && confirmPassword !== password
-                        ? "border-red-300"
-                        : "border-slate-200"
+                      ? "border-red-300"
+                      : "border-slate-200"
                       }`}
                   />
                   <button
@@ -277,7 +268,6 @@ export default function ResetPasswordPage() {
             </form>
           )}
 
-          {/* Success */}
           {pageState === "success" && (
             <div className="space-y-5 text-center">
               <div className="flex justify-center">
@@ -300,7 +290,6 @@ export default function ResetPasswordPage() {
           )}
         </div>
 
-        {/* Back link */}
         {(pageState === "form" || pageState === "invalid") && (
           <div className="mt-6 text-center">
             <Link
@@ -316,3 +305,19 @@ export default function ResetPasswordPage() {
     </div>
   );
 }
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/20 flex items-center justify-center p-4">
+        <div className="w-full max-w-md text-center">
+          <Logo size="lg" className="justify-center mb-4 animate-pulse" />
+          <p className="text-slate-500 text-sm">Loading reset password...</p>
+        </div>
+      </div>
+    }>
+      <ResetPasswordContent />
+    </Suspense>
+  );
+}
+
