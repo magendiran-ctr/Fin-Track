@@ -82,11 +82,11 @@ export async function sendResetEmail(to: string, userName: string, resetLink: st
                 </tr>
               </table>
 
-              // <!-- Fallback link -->
-              // <p style="font-size:13px;color:#94a3b8;margin:0 0 8px;">If the button doesn't work, copy and paste this link:</p>
-              // <p style="font-size:12px;color:#10b981;word-break:break-all;margin:0 0 32px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;">
-              //   <a href="${resetLink}" style="color:#10b981;text-decoration:none;">${resetLink}</a>
-              // </p>
+              <!-- Fallback link -->
+              <p style="font-size:13px;color:#94a3b8;margin:0 0 8px;">If the button doesn't work, copy and paste this link:</p>
+              <p style="font-size:12px;color:#10b981;word-break:break-all;margin:0 0 32px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;">
+                <a href="${resetLink}" style="color:#10b981;text-decoration:none;">${resetLink}</a>
+              </p>
 
               <!-- Security Note -->
               <table cellpadding="0" cellspacing="0" width="100%" style="background:#fef9ec;border:1px solid #fde68a;border-radius:10px;">

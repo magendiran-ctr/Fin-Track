@@ -3,8 +3,11 @@ import prisma from "@/lib/prisma";
 import { sendWeeklyPromoEmail } from "@/lib/email";
 
 function isAuthorized(req: Request): boolean {
-  const secret = process.env.WEEKLY_MAIL_SECRET || process.env.CRON_SECRET;
-  if (!secret) return true;
+  const secrets = [process.env.WEEKLY_MAIL_SECRET, process.env.CRON_SECRET]
+    .map((value) => value?.trim())
+    .filter((value): value is string => Boolean(value));
+
+  if (!secrets.length) return true;
 
   const authHeader = req.headers.get("authorization");
   const cronHeader = req.headers.get("x-cron-secret");
@@ -12,7 +15,7 @@ function isAuthorized(req: Request): boolean {
     ? authHeader.slice("Bearer ".length).trim()
     : "";
 
-  return token === secret || cronHeader === secret;
+  return secrets.some((secret) => token === secret || cronHeader === secret);
 }
 
 async function runWeeklyCampaign(req: Request) {
