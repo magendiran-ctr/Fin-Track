@@ -36,25 +36,32 @@ async function runWeeklyCampaign(req: Request) {
       });
     }
 
-    const results = await Promise.allSettled(
-      users.map((user) => sendWeeklyPromoEmail(user.email, user.name))
+    const results = await Promise.all(
+      users.map(async (user) => {
+        try {
+          await sendWeeklyPromoEmail(user.email, user.name);
+          return { email: user.email, ok: true as const };
+        } catch (error: any) {
+          return {
+            email: user.email,
+            ok: false as const,
+            reason: error?.message || "Unknown error",
+          };
+        }
+      })
     );
 
-    const failedEmails: string[] = [];
-    results.forEach((result, index) => {
-      if (result.status === "rejected") {
-        failedEmails.push(users[index].email);
-      }
-    });
-
-    const sent = users.length - failedEmails.length;
+    const failures = results.filter((result) => !result.ok);
+    const failedEmails = failures.map((result) => result.email);
+    const sent = users.length - failures.length;
 
     return NextResponse.json({
       message: "Weekly marketing emails processed.",
       total: users.length,
       sent,
-      failed: failedEmails.length,
+      failed: failures.length,
       failedEmails,
+      failures,
     });
   } catch (error) {
     console.error("Error sending weekly marketing emails:", error);
