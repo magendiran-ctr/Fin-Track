@@ -143,7 +143,7 @@ export async function sendWelcomeEmail(to: string, userName: string) {
 
   const safeName = userName?.trim() || "there";
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const logoUrl = `${appUrl}/fintrack-logo.svg`;
+  const logoUrl = `${appUrl}/dashboard-logo.svg`;
 
   await transporter.sendMail({
     from: process.env.MAIL_FROM || "FinTrack <noreply@fintrack.com>",
@@ -219,7 +219,7 @@ export async function sendWeeklyPromoEmail(to: string, userName: string) {
 
   const safeName = userName?.trim() || "there";
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const logoUrl = `${appUrl}/fintrack-logo.svg`;
+  const logoUrl = `${appUrl}/dashboard-logo.svg`;
 
   await transporter.sendMail({
     from: process.env.MAIL_FROM || "FinTrack <noreply@fintrack.com>",
