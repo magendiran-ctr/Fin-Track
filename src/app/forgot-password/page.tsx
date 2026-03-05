@@ -83,7 +83,7 @@ export default function ForgotPasswordPage() {
                     </a>
                   </div>
                 )}
-                <p className="text-xs text-slate-400">The link expires in 30 minutes.</p>
+                <p className="text-xs text-slate-400">The link expires in 100 seconds.</p>
               </div>
 
               <button

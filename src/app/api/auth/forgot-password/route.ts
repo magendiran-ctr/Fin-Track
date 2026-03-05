@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     });
 
     const token = crypto.randomBytes(32).toString("hex");
-    const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 5 * 60 *1000); // 5 minutes
 
     await prisma.passwordResetToken.create({
       data: { userId: user.id, token, expiresAt, used: false },
