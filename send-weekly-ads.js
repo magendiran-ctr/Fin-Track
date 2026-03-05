@@ -80,7 +80,7 @@ async function main() {
   validateSmtp();
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const from = process.env.MAIL_FROM || "FinTrack <noreply@fintrack.com>";
+  const from = process.env.MAIL_FROM || "FinTrack <fintrackexpense@gmail.com>";
 
   const transporter = nodemailer.createTransport({
     host: process.env.MAIL_HOST,

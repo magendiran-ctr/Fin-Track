@@ -10,6 +10,8 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+const MAIL_FROM = process.env.MAIL_FROM?.trim() || "FinTrack <fintrackexpense@gmail.com>";
+
 export async function sendResetEmail(to: string, userName: string, resetLink: string) {
   const host = process.env.MAIL_HOST?.trim();
   const port = process.env.MAIL_PORT?.trim();
@@ -29,7 +31,7 @@ export async function sendResetEmail(to: string, userName: string, resetLink: st
   const safeName = userName?.trim() || "there";
 
   const mailOptions = {
-    from: process.env.MAIL_FROM || "FinTrack <noreply@fintrack.com>",
+    from: MAIL_FROM,
     to,
     subject: "Reset Your FinTrack Password",
     html: `
@@ -146,7 +148,7 @@ export async function sendWelcomeEmail(to: string, userName: string) {
   const logoUrl = `${appUrl}/dashboard-logo.svg`;
 
   await transporter.sendMail({
-    from: process.env.MAIL_FROM || "FinTrack <noreply@fintrack.com>",
+    from: MAIL_FROM,
     to,
     subject: "Welcome to Fin-Track, " + safeName + "!",
     html: `
@@ -222,7 +224,7 @@ export async function sendWeeklyPromoEmail(to: string, userName: string) {
   const logoUrl = `${appUrl}/dashboard-logo.svg`;
 
   await transporter.sendMail({
-    from: process.env.MAIL_FROM || "FinTrack <noreply@fintrack.com>",
+    from: MAIL_FROM,
     to,
     subject: "FinTrack Pro is FREE for 3 Months - Limited Offer",
     html: `
