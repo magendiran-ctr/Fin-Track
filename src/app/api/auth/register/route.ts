@@ -1,10 +1,11 @@
 // POST /api/auth/register - Register a new user
 
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { db, generateId } from "@/lib/db";
 import { signToken } from "@/lib/auth";
 import { User } from "@/lib/types";
+import { sendWelcomeEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -61,6 +62,16 @@ export async function POST(request: NextRequest) {
 
     // Generate JWT token with the REAL database ID
     const token = await signToken({ userId: createdUser.id, email: createdUser.email });
+
+    // Send welcome email 30 seconds after signup (non-blocking and serverless-safe).
+    after(async () => {
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 30 * 1000));
+        await sendWelcomeEmail(createdUser.email, createdUser.name);
+      } catch (err) {
+        console.error("Welcome email send failed:", err);
+      }
+    });
 
     return NextResponse.json(
       {
