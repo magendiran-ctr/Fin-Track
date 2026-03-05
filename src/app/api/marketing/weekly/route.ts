@@ -12,7 +12,7 @@ function isAuthorized(req: Request): boolean {
   const authHeader = req.headers.get("authorization");
   const cronHeader = req.headers.get("x-cron-secret");
   const token = authHeader?.startsWith("Bearer ")
-    ? authHeader.slice("Bearer ".length).trim()
+    ? authHeader.slice("Bearer ".length).trim() 
     : "";
 
   return secrets.some((secret) => token === secret || cronHeader === secret);
