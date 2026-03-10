@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     });
 
     const token = crypto.randomBytes(32).toString("hex");
-    const expiresAt = new Date(Date.now() + 5 * 60 *1000); // 5 minutes
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes to match email copy
 
     await prisma.passwordResetToken.create({
       data: { userId: user.id, token, expiresAt, used: false },
@@ -56,22 +56,27 @@ export async function POST(req: Request) {
       }
     }
 
-    if (isDev && !emailSent) {
-      return NextResponse.json({
-        message: "Dev Mode: Email failed but reset link is below.",
-        resetLink: resetLink,
-        debug: {
-          error: emailErrorMsg,
-          hint: "Check MAIL_USER / MAIL_PASSWORD in .env. See .env.example for setup instructions."
-        }
-      });
-    }
-
-    return NextResponse.json({
+    const baseResponse = {
       message: emailSent
         ? "Password reset email sent successfully."
         : "If that email is registered, a reset link has been sent.",
-    });
+    };
+
+    // In dev, always include the reset link to allow quick testing regardless of email success.
+    if (isDev) {
+      return NextResponse.json({
+        ...baseResponse,
+        resetLink,
+        debug: emailSent
+          ? undefined
+          : {
+              error: emailErrorMsg,
+              hint: "Check MAIL_USER / MAIL_PASSWORD in .env. See .env.example for setup instructions."
+            }
+      });
+    }
+
+    return NextResponse.json(baseResponse);
   } catch (error) {
     console.error("Error in forgot-password API:", error);
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });
