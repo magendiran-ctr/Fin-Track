@@ -2,7 +2,7 @@
 
 // Authentication context for managing user state
 
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { authApi } from "@/lib/api-client";
 
 interface AuthUser {
@@ -11,7 +11,7 @@ interface AuthUser {
   name: string;
   email: string;
   createdAt: string;
-  avatar?: string;
+  avatar?: string | null;
 }
 
 interface AuthContextType {
@@ -21,7 +21,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
-  updateAvatar: (avatarDataUrl: string) => void;
+  updateAvatar: (avatarDataUrl: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -71,14 +71,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("expense_tracker_user");
   }, []);
 
-  const updateAvatar = useCallback((avatarDataUrl: string) => {
-    setUser(prev => {
-      if (!prev) return prev;
-      const updated = { ...prev, avatar: avatarDataUrl };
-      localStorage.setItem("expense_tracker_user", JSON.stringify(updated));
-      return updated;
-    });
+  const updateAvatar = useCallback(async (avatarDataUrl: string) => {
+    const data = await authApi.updateAvatar(avatarDataUrl);
+    setUser(data.user);
+    localStorage.setItem("expense_tracker_user", JSON.stringify(data.user));
   }, []);
+
+  useEffect(() => {
+    if (!token) return;
+
+    let isMounted = true;
+    const syncUser = async () => {
+      try {
+        const data = await authApi.getMe();
+        if (!isMounted) return;
+        setUser(data.user);
+        localStorage.setItem("expense_tracker_user", JSON.stringify(data.user));
+      } catch {
+        if (!isMounted) return;
+        setToken(null);
+        setUser(null);
+        localStorage.removeItem("expense_tracker_token");
+        localStorage.removeItem("expense_tracker_user");
+      }
+    };
+
+    syncUser();
+    return () => {
+      isMounted = false;
+    };
+  }, [token]);
 
   return (
     <AuthContext.Provider value={{ user, token, isLoading, login, register, logout, updateAvatar }}>

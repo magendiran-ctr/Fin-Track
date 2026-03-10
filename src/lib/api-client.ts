@@ -17,15 +17,27 @@ function getAuthHeaders(): HeadersInit {
   };
 }
 
+type ApiError = Error & { status?: number; details?: string };
+
 async function handleResponse<T>(response: Response): Promise<T> {
-  const data = await response.json();
-  if (!response.ok) {
-    const errorMsg = data.details
-      ? `${data.error}: ${data.details}`
-      : (data.error || "An error occurred");
-    throw new Error(errorMsg);
+  let data: any = null;
+  try {
+    data = await response.json();
+  } catch {
+    // ignore JSON parse errors and fall back to generic message
   }
-  return data;
+
+  if (!response.ok) {
+    const errorMsg = data?.details
+      ? `${data.error}: ${data.details}`
+      : (data?.error || response.statusText || "An error occurred");
+    const error: ApiError = new Error(errorMsg);
+    error.status = response.status;
+    error.details = data?.details;
+    throw error;
+  }
+
+  return data as T;
 }
 
 // Auth API
@@ -36,7 +48,7 @@ export const authApi = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, password }),
     });
-    return handleResponse<{ token: string; user: { id: string; User_id: string | null; name: string; email: string; createdAt: string } }>(response);
+    return handleResponse<{ token: string; user: { id: string; User_id: string | null; name: string; email: string; avatar?: string | null; createdAt: string } }>(response);
   },
 
   async login(email: string, password: string) {
@@ -45,7 +57,24 @@ export const authApi = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
-    return handleResponse<{ token: string; user: { id: string; User_id: string | null; name: string; email: string; createdAt: string } }>(response);
+    return handleResponse<{ token: string; user: { id: string; User_id: string | null; name: string; email: string; avatar?: string | null; createdAt: string } }>(response);
+  },
+
+  async updateAvatar(avatar: string) {
+    const response = await fetch(`${API_BASE}/auth/avatar`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ avatar }),
+    });
+    return handleResponse<{ user: { id: string; User_id: string | null; name: string; email: string; avatar?: string | null; createdAt: string } }>(response);
+  },
+
+  async getMe() {
+    const response = await fetch(`${API_BASE}/auth/me`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return handleResponse<{ user: { id: string; User_id: string | null; name: string; email: string; avatar?: string | null; createdAt: string } }>(response);
   },
 };
 

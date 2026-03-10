@@ -23,7 +23,7 @@ import { formatCurrency } from "@/lib/utils";
 type Tab = "dashboard" | "expenses" | "analytics" | "settings" | "subscription";
 
 function HomeContent() {
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading, logout } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -101,11 +101,17 @@ function HomeContent() {
       setExpenses(expensesData.expenses);
       setAnalytics(analyticsData.analytics);
     } catch (err) {
+      const status = (err as any)?.status;
+      if (status === 401) {
+        logout();
+        router.push("/login?reason=session-expired");
+        return;
+      }
       console.error("Failed to fetch dashboard data:", err);
     } finally {
       setIsLoading(false);
     }
-  }, [user, filters]);
+  }, [user, filters, logout, router]);
 
   // Load data when user or filters change
   useEffect(() => {

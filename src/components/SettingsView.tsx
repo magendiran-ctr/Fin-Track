@@ -92,12 +92,16 @@ export function SettingsView() {
     const handleAvatarSave = async () => {
         if (!avatarPreview) return;
         setIsAvatarSaving(true);
-        await new Promise(r => setTimeout(r, 800));
-        updateAvatar(avatarPreview);
-        setIsAvatarSaving(false);
-        setAvatarSuccess(true);
-        setAvatarPreview(null);
-        setTimeout(() => setAvatarSuccess(false), 3000);
+        try {
+            await updateAvatar(avatarPreview);
+            setAvatarSuccess(true);
+            setAvatarPreview(null);
+            setTimeout(() => setAvatarSuccess(false), 3000);
+        } catch (error: any) {
+            alert(error?.message || "Failed to update profile photo");
+        } finally {
+            setIsAvatarSaving(false);
+        }
     };
 
     const handleAvatarCancel = () => {

@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
         User_id: user.User_id,
         name: user.name,
         email: user.email,
+        avatar: user.avatar || null,
         createdAt: user.createdAt,
       },
     });

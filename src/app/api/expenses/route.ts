@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   console.log("POST /api/expenses - Request received");
   try {
-    const payload = await authenticate(request);
+    const payload = await authenticate(request);.0
     console.log("Auth payload:", payload);
     if (!payload) {
       console.log("Unauthorized: No payload");

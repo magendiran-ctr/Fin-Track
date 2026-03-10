@@ -6,6 +6,7 @@ export interface User {
   name: string;
   email: string;
   password: string;
+  avatar?: string | null;
   createdAt: string;
 }
 
@@ -29,6 +30,7 @@ export type ExpenseCategory =
   | "Entertainment"
   | "Health"
   | "Education"
+  | "EMI"
   | "Other";
 
 export const EXPENSE_CATEGORIES: ExpenseCategory[] = [
@@ -39,6 +41,7 @@ export const EXPENSE_CATEGORIES: ExpenseCategory[] = [
   "Entertainment",
   "Health",
   "Education",
+  "EMI",
   "Other",
 ];
 
@@ -50,6 +53,7 @@ export const CATEGORY_COLORS: Record<ExpenseCategory, string> = {
   Entertainment: "#ec4899",
   Health: "#ef4444",
   Education: "#06b6d4",
+  EMI: "#f97316",
   Other: "#6b7280",
 };
 
@@ -61,6 +65,7 @@ export const CATEGORY_ICONS: Record<ExpenseCategory, string> = {
   Entertainment: "Film",
   Health: "Activity",
   Education: "GraduationCap",
+  EMI: "CreditCard",
   Other: "Box",
 };
 

@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
       name: name.trim(),
       email: email.toLowerCase(),
       password: hashedPassword,
+      avatar: null,
       createdAt: new Date().toISOString(),
     };
 
@@ -81,6 +82,7 @@ export async function POST(request: NextRequest) {
           User_id: createdUser.User_id,
           name: createdUser.name,
           email: createdUser.email,
+          avatar: createdUser.avatar || null,
           createdAt: createdUser.createdAt,
         },
       },
