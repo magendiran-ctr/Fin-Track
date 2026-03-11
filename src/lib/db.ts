@@ -1,5 +1,6 @@
 // Database service using Prisma and MongoDB
 import prisma from "./prisma";
+import { Prisma } from "@prisma/client";
 import { User, Expense } from "./types";
 
 export class Database {
@@ -56,6 +57,34 @@ export class Database {
       avatar: user.avatar || null,
       createdAt: user.createdAt.toISOString(),
     };
+  }
+
+  async updateUserProfile(id: string, updates: { name?: string; email?: string }): Promise<User | undefined> {
+    const data: Record<string, any> = {};
+    if (updates.name) data.name = updates.name;
+    if (updates.email) data.email = updates.email.toLowerCase();
+
+    try {
+      const user = await prisma.user.update({
+        where: { id },
+        data,
+      });
+
+      return {
+        id: user.id,
+        User_id: (user as any).User_id || null,
+        name: user.name,
+        email: user.email,
+        password: user.password,
+        avatar: user.avatar || null,
+        createdAt: user.createdAt.toISOString(),
+      };
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+        throw error;
+      }
+      return undefined;
+    }
   }
 
   async updateUserAvatar(id: string, avatar: string): Promise<User | undefined> {

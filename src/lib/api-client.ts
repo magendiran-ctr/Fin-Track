@@ -69,6 +69,15 @@ export const authApi = {
     return handleResponse<{ user: { id: string; User_id: string | null; name: string; email: string; avatar?: string | null; createdAt: string } }>(response);
   },
 
+  async updateProfile(updates: { name: string; email: string }) {
+    const response = await fetch(`${API_BASE}/auth/profile`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(updates),
+    });
+    return handleResponse<{ user: { id: string; User_id: string | null; name: string; email: string; avatar?: string | null; createdAt: string } }>(response);
+  },
+
   async getMe() {
     const response = await fetch(`${API_BASE}/auth/me`, {
       method: "GET",

@@ -33,7 +33,8 @@ export function ExpenseModal({ isOpen, onClose, onSuccess, expense }: ExpenseMod
       setTitle(expense.title);
       setAmount(expense.amount.toString());
       setCategory(expense.category);
-      setDate(expense.date);
+      // Preserve original date when editing; slice avoids timezone shift on ISO strings
+      setDate(expense.date?.slice(0, 10) || new Date().toISOString().split("T")[0]);
       setNotes(expense.notes || "");
     } else {
       setTitle("");

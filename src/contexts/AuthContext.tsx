@@ -22,6 +22,7 @@ interface AuthContextType {
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   updateAvatar: (avatarDataUrl: string) => Promise<void>;
+  updateProfile: (updates: { name: string; email: string }) => Promise<AuthUser>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -77,6 +78,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("expense_tracker_user", JSON.stringify(data.user));
   }, []);
 
+  const updateProfile = useCallback(async (updates: { name: string; email: string }) => {
+    const data = await authApi.updateProfile({
+      name: updates.name.trim(),
+      email: updates.email.trim().toLowerCase(),
+    });
+    setUser(data.user);
+    localStorage.setItem("expense_tracker_user", JSON.stringify(data.user));
+    return data.user;
+  }, []);
+
   useEffect(() => {
     if (!token) return;
 
@@ -103,7 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [token]);
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout, updateAvatar }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout, updateAvatar, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );

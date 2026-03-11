@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     User,
@@ -18,7 +18,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/Button";
 
 export function SettingsView() {
-    const { user, updateAvatar } = useAuth();
+    const { user, updateAvatar, updateProfile } = useAuth();
     const [isSaving, setIsSaving] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -109,20 +109,37 @@ export function SettingsView() {
         if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
+    useEffect(() => {
+        setProfileForm({
+            name: user?.name || "",
+            email: user?.email || "",
+        });
+    }, [user]);
+
     // Profile update handler
     const handleProfileUpdate = async () => {
-        if (!profileForm.name.trim() || !profileForm.email.trim()) {
+        const trimmedName = profileForm.name.trim();
+        const trimmedEmail = profileForm.email.trim();
+
+        if (!trimmedName || !trimmedEmail) {
             alert("Name and email are required");
             return;
         }
+
         setProfileSaving(true);
-        await new Promise(r => setTimeout(r, 1500));
-        setProfileSaving(false);
-        setProfileSuccess(true);
-        setTimeout(() => {
-            setProfileSuccess(false);
-            setActiveModal(null);
-        }, 2000);
+        try {
+            const updated = await updateProfile({ name: trimmedName, email: trimmedEmail });
+            setProfileForm({ name: updated.name, email: updated.email });
+            setProfileSuccess(true);
+            setTimeout(() => {
+                setProfileSuccess(false);
+                setActiveModal(null);
+            }, 1500);
+        } catch (error: any) {
+            alert(error?.message || "Failed to update profile");
+        } finally {
+            setProfileSaving(false);
+        }
     };
 
     // Security update handler
