@@ -12,12 +12,10 @@ export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const [devResetLink, setDevResetLink] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setDevResetLink("");
     setIsLoading(true);
 
     try {
@@ -30,9 +28,6 @@ export default function ForgotPasswordPage() {
 
       if (!res.ok) throw new Error(data.message || "Something went wrong");
 
-      if (data.resetLink) {
-        setDevResetLink(data.resetLink);
-      }
       setSubmitted(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -71,18 +66,6 @@ export default function ForgotPasswordPage() {
                   <span className="font-semibold text-slate-800">{email}</span>.
                   Please check your inbox and spam folder.
                 </p>
-                {devResetLink && (
-                  <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl text-left">
-                    <p className="text-xs font-bold text-amber-800 mb-2 uppercase tracking-tight">Developer Mode: Email Simulation</p>
-                    <p className="text-xs text-amber-700 mb-2">The email could not be sent (check .env), but you can use the link below to continue testing:</p>
-                    <a
-                      href={devResetLink}
-                      className="text-xs text-emerald-600 font-mono break-all hover:underline block p-2 bg-white border border-amber-100 rounded"
-                    >
-                      {devResetLink}
-                    </a>
-                  </div>
-                )}
                 <p className="text-xs text-slate-400">The link expires in 100 seconds.</p>
               </div>
 
