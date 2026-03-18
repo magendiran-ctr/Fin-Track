@@ -25,6 +25,7 @@ import { Expense, EXPENSE_CATEGORIES, ExpenseCategory, CATEGORY_COLORS } from "@
 import { formatCurrency, formatDate, exportToCSV, exportToPDF } from "@/lib/utils";
 import { expensesApi } from "@/lib/api-client";
 
+// Number of expenses per page on the Expenses screen
 const ITEMS_PER_PAGE = 10;
 
 interface ExpenseListProps {
@@ -43,6 +44,11 @@ export function ExpenseList({ expenses, onEdit, onAdd, onRefresh, isLoading }: E
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset to first page whenever the source expenses array changes (new fetch)
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [expenses]);
 
   // Apply client-side filters
   const filtered = useMemo(() => {

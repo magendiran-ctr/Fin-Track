@@ -11,6 +11,7 @@ import { CardSkeleton } from "@/components/ui/Skeleton";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
 import { Expense, AnalyticsSummary, CATEGORY_COLORS } from "@/lib/types";
 import { formatCurrency, formatDate, getCurrentMonth, getMonthFromDate } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface DashboardProps {
   expenses: Expense[];
@@ -29,11 +30,13 @@ export function Dashboard({
   onViewExpenses,
   filters
 }: DashboardProps) {
+  const { user } = useAuth();
   // Use passed filters for calculations
   const filteredExpenses = expenses; // expenses are already filtered by the API call in page.tsx
   const totalInPeriod = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
 
-  const recentExpenses = expenses.slice(0, 5);
+  // Show a slightly longer preview on the dashboard while keeping the expenses page paginated at 10
+  const recentExpenses = expenses.slice(0, 6);
 
   if (isLoading) {
     return (
@@ -60,7 +63,7 @@ export function Dashboard({
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
 
-        <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="relative flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
             <p className="text-teal-100 text-sm font-medium">Selected Period Spending</p>
             <motion.p
@@ -72,7 +75,9 @@ export function Dashboard({
               {formatCurrency(totalInPeriod)}
             </motion.p>
             <p className="text-teal-100 text-xs mt-2 opacity-80">
-              {formatDate(filters.startDate)} — {formatDate(filters.endDate)}
+              {filters.startDate && filters.endDate
+                ? `${formatDate(filters.startDate)} - ${formatDate(filters.endDate)}`
+                : "All time"}
             </p>
           </div>
           <div className="flex-shrink-0">
@@ -95,6 +100,7 @@ export function Dashboard({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
+
           <StatCard
             title="Total in Period"
             value={formatCurrency(totalInPeriod)}

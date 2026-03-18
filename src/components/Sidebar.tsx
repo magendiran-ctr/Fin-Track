@@ -2,31 +2,26 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
-  Receipt,
   PieChart,
   Settings,
   LogOut,
-  Menu,
-  X,
-  Wallet,
   IndianRupee,
   CreditCard,
   Plus
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Logo } from "@/components/ui/Logo";
 
 const navItems = [
   { href: "/?tab=dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/?tab=expenses", label: "Expenses", icon: IndianRupee },
   { href: "/?tab=analytics", label: "Analytics", icon: PieChart },
-  { href: "/?tab=settings", label: "Settings", icon: Settings },
+  { href: "/?tab=reports", label: "Reports", icon: CreditCard },
   { href: "/?tab=subscription", label: "Subscription", icon: CreditCard },
-
+  { href: "/?tab=settings", label: "Settings", icon: Settings }
 ];
 
 interface SidebarProps {
@@ -35,14 +30,12 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isMobileOpen, setIsMobileOpen }: SidebarProps) {
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const { user, logout } = useAuth();
-  const [isHovered, setIsHovered] = useState<string | null>(null);
+  const currentTab = searchParams.get("tab") || "dashboard";
 
   return (
     <>
-
       {/* Sidebar backdrop for mobile */}
       <AnimatePresence>
         {isMobileOpen && (
@@ -60,100 +53,99 @@ export default function Sidebar({ isMobileOpen, setIsMobileOpen }: SidebarProps)
       <motion.aside
         initial={{ x: -280 }}
         animate={{ x: isMobileOpen ? 0 : 0 }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className={`fixed top-0 left-0 h-full w-72 bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 border-r border-slate-200/50 dark:border-slate-700/50 z-40 
-          ${isMobileOpen ? "translate-x-0" : "hidden lg:flex"} flex flex-col`}
+        transition={{ type: "spring", stiffness: 280, damping: 26 }}
+        className={`fixed top-0 left-0 h-full w-[280px] bg-[#3E5251] text-white z-40 shadow-xl shadow-black/20 lg:rounded-r-[3rem] overflow-visible
+          ${isMobileOpen ? "translate-x-0" : "hidden lg:flex"} flex flex-col py-10`}
       >
-        {/* Logo */}
-        <div className="p-6 border-b border-slate-200/50 dark:border-slate-700/50">
-          <Link href="/">
-            <Logo showText />
-          </Link>
+        {/* Profile header */}
+        <div className="flex flex-col items-center mt-2 mb-12 text-center">
+          <div className="relative w-[84px] h-[84px] rounded-full border-[3px] border-[#E5B842] p-1 mb-4">
+            <div className="w-full h-full rounded-full overflow-hidden bg-[#3E5251] flex items-center justify-center">
+              {user?.avatar ? (
+                <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-2xl font-bold text-white">
+                  {user?.email?.[0]?.toUpperCase() || "U"}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="px-4">
+            <h2 className="text-[15px] font-bold text-white uppercase tracking-[0.1em]">
+              {user?.name || "Alex Johnson"}
+            </h2>
+            <p className="text-[11px] text-[#A1B5B3] mt-1.5 font-medium tracking-wide">
+              {user?.email || "alex.johnson@gmail.com"}
+            </p>
+          </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1">
-          {/* Add Expense Button */}
-          <button
-            onClick={() => {
-              window.dispatchEvent(new CustomEvent('open-expense-modal'));
-              setIsMobileOpen(false); // Close sidebar on mobile after clicking
-            }}
-            className="w-full mb-6 flex items-center justify-center gap-2 py-3 rounded-xl gradient-primary text-white font-semibold shadow-lg shadow-teal-500/25 hover:shadow-teal-500/40 transition-all active:scale-95"
-          >
-            <Plus className="w-5 h-5" />
-            Add Expense
-          </button>
-
+        <nav className="flex-1 flex flex-col gap-1 w-full relative z-10">
           {navItems.map((item, index) => {
             const Icon = item.icon;
             const tabParam = new URLSearchParams(item.href.split("?")[1] || "").get("tab");
-            const currentTab = searchParams.get("tab") || "dashboard";
             const isItemActive = tabParam === currentTab;
 
             return (
-              <motion.div
+              <Link
                 key={item.href}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
+                href={item.href}
+                onClick={() => setIsMobileOpen(false)}
+                className={`relative flex items-center gap-5 py-3.5 pl-6 ml-10 transition-all duration-300 group
+                  ${isItemActive
+                    ? "bg-[#E0F0E9] text-[#3E5251] rounded-l-full lg:rounded-r-none rounded-r-full"
+                    : "text-white/80 hover:bg-white/5 rounded-l-full lg:rounded-r-none rounded-r-full hover:text-white"
+                  }`}
               >
-                <Link
-                  href={item.href}
-                  onClick={() => setIsMobileOpen(false)}
-                  onMouseEnter={() => setIsHovered(item.href)}
-                  onMouseLeave={() => setIsHovered(null)}
-                  className={`sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group
-                    ${isItemActive
-                      ? "bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 text-teal-700 dark:text-teal-400"
-                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-800/50"
-                    }
-                    ${isItemActive ? "active" : ""}
-                  `}
-                >
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Icon className={`w-5 h-5 transition-colors ${isItemActive ? "text-teal-600 dark:text-teal-400" : "group-hover:text-teal-600 dark:group-hover:text-teal-400"}`} />
-                  </motion.div>
-                  <span className="font-medium">{item.label}</span>
+                <Icon className={`w-5 h-5 flex-shrink-0 transition-colors ${isItemActive ? "text-[#3E5251]" : "text-[#E5B842] opacity-80 group-hover:opacity-100"}`} />
+                <span className="text-[11px] font-bold tracking-[0.15em] uppercase mt-[2px]">
+                  {item.label}
+                </span>
 
-                  {/* Active indicator */}
-                  {isItemActive && (
-                    <motion.div
-                      layoutId="activeNav"
-                      className="ml-auto w-2 h-2 rounded-full bg-gradient-to-r from-teal-500 to-cyan-500"
-                    />
-                  )}
-                </Link>
-              </motion.div>
+                {/* Active extension with inverse curves */}
+                {isItemActive && (
+                  <div className="absolute top-0 -right-[1px] bottom-0 w-[24px]">
+                    <div className="absolute inset-0 bg-[#E0F0E9] w-[26px]" />
+                    {/* Top inner-curve */}
+                    <div className="absolute -top-[24px] right-0 w-[24px] h-[24px] overflow-hidden pointer-events-none">
+                      <div className="absolute inset-0 bg-[#E0F0E9]"></div>
+                      <div className="absolute inset-0 bg-[#3E5251] rounded-br-[24px]"></div>
+                    </div>
+                    {/* Bottom inner-curve */}
+                    <div className="absolute -bottom-[24px] right-0 w-[24px] h-[24px] overflow-hidden pointer-events-none">
+                      <div className="absolute inset-0 bg-[#E0F0E9]"></div>
+                      <div className="absolute inset-0 bg-[#3E5251] rounded-tr-[24px]"></div>
+                    </div>
+                  </div>
+                )}
+              </Link>
             );
           })}
         </nav>
 
-        {/* User section */}
-        <div className="p-4 border-t border-slate-200/50 dark:border-slate-700/50">
-          <div className="flex items-center gap-3 p-3 rounded-xl glass mb-3">
-            <div className="w-10 h-10 rounded-full gradient-secondary flex items-center justify-center text-white font-semibold">
-              {user?.email?.[0]?.toUpperCase() || "U"}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">
-                {user?.email || "User"}
-              </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Free Plan
-              </p>
-            </div>
-          </div>
+        {/* Quick actions & Logout at bottom styled uniformly */}
+        <div className="mt-auto pt-8 flex flex-col gap-3 w-full relative z-10 pb-4">
+          <button
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent('open-expense-modal'));
+              setIsMobileOpen(false);
+            }}
+            className="relative flex items-center gap-5 py-3.5 pl-6 ml-10 text-white/80 hover:bg-white/5 rounded-l-full lg:rounded-r-none rounded-r-full hover:text-white group transition-all w-[calc(100%-40px)]"
+          >
+            <Plus className="w-5 h-5 text-[#E5B842] opacity-80 group-hover:opacity-100" />
+            <span className="text-[11px] font-bold tracking-[0.15em] uppercase mt-[2px]">Add Expense</span>
+          </button>
 
           <button
-            onClick={logout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+            onClick={() => {
+              logout();
+              setIsMobileOpen(false);
+            }}
+            className="relative flex items-center gap-5 py-3.5 pl-6 ml-10 text-white/80 hover:bg-white/5 rounded-l-full lg:rounded-r-none rounded-r-full hover:text-white group transition-all w-[calc(100%-40px)]"
           >
-            <LogOut className="w-5 h-5" />
-            <span className="font-medium">Sign Out</span>
+            <LogOut className="w-5 h-5 text-[#E5B842] opacity-80 group-hover:opacity-100" />
+            <span className="text-[11px] font-bold tracking-[0.15em] uppercase mt-[2px]">Logout</span>
           </button>
         </div>
       </motion.aside>

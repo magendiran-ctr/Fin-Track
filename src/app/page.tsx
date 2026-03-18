@@ -34,28 +34,16 @@ function HomeContent() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  // Default to no date limits so the expenses list can paginate through all history
   const [filters, setFilters] = useState({
-    startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
-    endDate: new Date().toISOString().split('T')[0],
+    startDate: "",
+    endDate: "",
   });
   const [mounted, setMounted] = useState(false);
 
-  // Fix hydration mismatch and load persisted filters
+  // Fix hydration mismatch
   useEffect(() => {
     setMounted(true);
-    // Load filters from localStorage
-    const savedFilters = localStorage.getItem('expense_tracker_filters');
-    if (savedFilters) {
-      try {
-        const parsedFilters = JSON.parse(savedFilters);
-        setFilters({
-          startDate: parsedFilters.startDate || filters.startDate,
-          endDate: parsedFilters.endDate || filters.endDate,
-        });
-      } catch (e) {
-        console.error('Failed to parse saved filters:', e);
-      }
-    }
   }, []);
 
   // Get tab from URL params
@@ -65,13 +53,6 @@ function HomeContent() {
       setActiveTab(tab);
     }
   }, [searchParams]);
-
-  // Persist filters to localStorage whenever they change
-  useEffect(() => {
-    if (mounted) {
-      localStorage.setItem('expense_tracker_filters', JSON.stringify(filters));
-    }
-  }, [filters, mounted]);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -162,7 +143,7 @@ function HomeContent() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <div className="min-h-screen bg-[#E0F0E9] dark:bg-slate-900">
       {/* Sidebar */}
       <Sidebar isMobileOpen={isMobileOpen} setIsMobileOpen={setIsMobileOpen} />
 

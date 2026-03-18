@@ -11,15 +11,10 @@ import {
   LogOut,
   User as UserIcon,
   TrendingUp,
-  Plus,
-  TreeDeciduousIcon,
-  TrendingUpIcon,
-  TreePineIcon,
-  HdIcon,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { DateRangePicker } from "@/components/ui/DateRangePicker";
-import { CategoryIcon } from "@/components/ui/CategoryIcon";
+import { Logo } from "@/components/ui/Logo";
 
 interface TopBarProps {
   isMobileOpen: boolean;
@@ -45,7 +40,7 @@ export default function TopBar({
   };
 
   return (
-    <header className="sticky top-0 z-30 glass border-b border-slate-200/50 dark:border-slate-700/50">
+    <header className="sticky top-0 z-30 bg-gradient-to-r from-[#E0F0E9] via-[#E0F0E9] to-[#E0F0E9]">
       <div className="flex items-center justify-between h-16 px-4 lg:px-6 gap-3">
         {/* Mobile menu toggle */}
         <div className="flex items-center gap-3 lg:hidden">
@@ -58,20 +53,17 @@ export default function TopBar({
           </button>
         </div>
 
-        {/* Dashboard Greeting */}
-        <div className="hidden md:flex items-center gap-3 flex-1">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center shadow-sm">
-              <UserIcon className="w-3.5 h-3.5 text-white" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-none">
-                Welcome back, {user?.name?.split(" ")[0] || "there"} 👋
-              </p>
-              <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
-                {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })} · Fin Tracker
-              </p>
-            </div>
+        {/* Brand + Welcome */}
+        <div className="hidden md:flex items-center gap-4 flex-1 min-w-0">
+          <Logo showText={true} />
+          <div className="h-7 w-px bg-[#3E5251]/20 mx-1 hidden lg:block" />
+          <div className="hidden lg:block min-w-0">
+            <p className="text-[13px] font-semibold text-[#1e3432] leading-tight truncate">
+              Welcome back, <span className="text-[#3E5251]">{user?.name?.split(" ")[0] || "there"}</span> 👋
+            </p>
+            <p className="text-[11px] text-[#7a9593] leading-tight">
+              {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
+            </p>
           </div>
         </div>
 
@@ -83,7 +75,7 @@ export default function TopBar({
           {/* Theme Toggle */}
           <button
             onClick={toggleDarkMode}
-            className="p-2 rounded-xl bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50"
+            className="p-2 rounded-xl bg-slate-100/70 border border-slate-200/80"
           >
             {isDark ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5 text-slate-600" />}
           </button>
@@ -92,7 +84,7 @@ export default function TopBar({
           <div className="relative">
             <button
               onClick={() => setShowUserDropdown(!showUserDropdown)}
-              className="flex items-center gap-2 p-1 pl-1 pr-2 rounded-full bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50 hover:bg-slate-200/50 transition-colors"
+              className="flex items-center gap-2 p-1 pl-1 pr-2 rounded-full bg-white border border-slate-200 hover:border-[#c9a227]/60 transition-colors"
             >
               <div className="w-8 h-8 rounded-full overflow-hidden gradient-primary flex items-center justify-center text-white font-bold text-xs">
                 {user?.avatar ? (
