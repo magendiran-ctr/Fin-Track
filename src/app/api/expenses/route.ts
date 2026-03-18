@@ -6,6 +6,7 @@ import { db, generateId } from "@/lib/db";
 import { verifyToken, getTokenFromHeader } from "@/lib/auth";
 import { validateExpenseInput } from "@/lib/utils";
 import { Expense, ExpenseCategory } from "@/lib/types";
+import { sendExpenseCreatedEmail } from "@/lib/email";
 
 // Middleware helper to authenticate requests
 async function authenticate(request: NextRequest) {
@@ -133,6 +134,17 @@ export async function POST(request: NextRequest) {
     console.log("Calling db.createExpense...");
     const createdExpense = await db.createExpense(expense);
     console.log("Expense created successfully with ID:", createdExpense.id);
+
+    if (process.env.ENABLE_EXPENSE_NOTIFICATIONS === "true") {
+      try {
+        const user = await db.getUserById(payload.userId);
+        if (user?.email) {
+          await sendExpenseCreatedEmail(user.email, user.name, createdExpense);
+        }
+      } catch (notificationError: any) {
+        console.error("Expense notification email failed:", notificationError?.message || notificationError);
+      }
+    }
 
     return NextResponse.json({ expense: createdExpense }, { status: 201 });
   } catch (error: any) {

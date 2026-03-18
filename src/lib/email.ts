@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import type { Expense } from "@/lib/types";
 
 const transporter = nodemailer.createTransport({
   host: process.env.MAIL_HOST,
@@ -275,6 +276,80 @@ export async function sendWeeklyPromoEmail(to: string, userName: string) {
               <p style="margin:0;color:#94a3b8;font-size:12px;">
                 You are receiving this weekly promotional email from FinTrack.
               </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`,
+  });
+}
+
+export async function sendExpenseCreatedEmail(to: string, userName: string, expense: Expense) {
+  const host = process.env.MAIL_HOST?.trim();
+  const port = process.env.MAIL_PORT?.trim();
+  const user = process.env.MAIL_USER?.trim();
+  const pass = process.env.MAIL_PASSWORD?.trim();
+
+  const hasPlaceholders =
+    !user ||
+    !pass ||
+    user.includes("your-email@gmail.com") ||
+    pass.includes("your-app-password-here");
+
+  if (!host || !port || hasPlaceholders) {
+    throw new Error("SMTP is not configured. Set MAIL_HOST, MAIL_PORT, MAIL_USER, and MAIL_PASSWORD.");
+  }
+
+  const safeName = userName?.trim() || "there";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+  await transporter.sendMail({
+    from: MAIL_FROM,
+    to,
+    subject: "Expense added in FinTrack",
+    html: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Expense Added</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f1f5f9;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:30px 0;">
+    <tr>
+      <td align="center">
+        <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+          <tr>
+            <td style="background:linear-gradient(135deg,#10b981 0%,#0d9488 100%);padding:24px 34px;color:#ffffff;">
+              <h2 style="margin:0;font-size:22px;font-weight:700;">FinTrack Notification</h2>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:28px 34px;">
+              <p style="margin:0 0 12px;color:#334155;font-size:15px;">Hi ${safeName},</p>
+              <p style="margin:0 0 18px;color:#475569;font-size:14px;line-height:1.6;">
+                A new expense was added to your account.
+              </p>
+              <table cellpadding="0" cellspacing="0" width="100%" style="margin:0 0 18px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;">
+                <tr><td style="padding:12px 14px;color:#0f172a;font-size:13px;"><strong>Title:</strong> ${expense.title}</td></tr>
+                <tr><td style="padding:0 14px 12px;color:#0f172a;font-size:13px;"><strong>Amount:</strong> INR ${expense.amount.toFixed(2)}</td></tr>
+                <tr><td style="padding:0 14px 12px;color:#0f172a;font-size:13px;"><strong>Category:</strong> ${expense.category}</td></tr>
+                <tr><td style="padding:0 14px 12px;color:#0f172a;font-size:13px;"><strong>Date:</strong> ${expense.date}</td></tr>
+              </table>
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="background:linear-gradient(135deg,#10b981 0%,#0d9488 100%);border-radius:10px;">
+                    <a href="${appUrl}/?tab=expenses" target="_blank" style="display:inline-block;padding:12px 24px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;">
+                      View Expenses
+                    </a>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
         </table>
