@@ -54,7 +54,7 @@ export default function Sidebar({ isMobileOpen, setIsMobileOpen }: SidebarProps)
         initial={{ x: -280 }}
         animate={{ x: isMobileOpen ? 0 : 0 }}
         transition={{ type: "spring", stiffness: 280, damping: 26 }}
-        className={`fixed top-0 left-0 h-full w-[280px] bg-[#3E5251] text-white z-40 shadow-xl shadow-black/20 lg:rounded-r-[3rem] overflow-visible
+        className={`fixed top-0 left-0 h-full w-[280px] bg-[#3E5251] text-white z-40 shadow-xl shadow-black/20 lg:shadow-none lg:rounded-r-[3rem] overflow-visible
           ${isMobileOpen ? "translate-x-0" : "hidden lg:flex"} flex flex-col py-10`}
       >
         {/* Profile header */}
@@ -94,7 +94,7 @@ export default function Sidebar({ isMobileOpen, setIsMobileOpen }: SidebarProps)
                 onClick={() => setIsMobileOpen(false)}
                 className={`relative flex items-center gap-5 py-3.5 pl-6 ml-10 transition-all duration-300 group
                   ${isItemActive
-                    ? "bg-[#E0F0E9] text-[#3E5251] rounded-l-full lg:rounded-r-none rounded-r-full"
+                    ? "bg-[#EAF7EF] text-[#3E5251] rounded-l-full lg:rounded-r-none rounded-r-full"
                     : "text-white/80 hover:bg-white/5 rounded-l-full lg:rounded-r-none rounded-r-full hover:text-white"
                   }`}
               >
@@ -106,16 +106,16 @@ export default function Sidebar({ isMobileOpen, setIsMobileOpen }: SidebarProps)
                 {/* Active extension with inverse curves */}
                 {isItemActive && (
                   <div className="absolute top-0 -right-[1px] bottom-0 w-[24px]">
-                    <div className="absolute inset-0 bg-[#E0F0E9] w-[26px]" />
+                    <div className="absolute inset-0 bg-[#EAF7EF] w-[24px]" />
                     {/* Top inner-curve */}
                     <div className="absolute -top-[24px] right-0 w-[24px] h-[24px] overflow-hidden pointer-events-none">
-                      <div className="absolute inset-0 bg-[#E0F0E9]"></div>
-                      <div className="absolute inset-0 bg-[#3E5251] rounded-br-[24px]"></div>
+                      <div className="absolute inset-0 bg-[#EAF7EF]"></div>
+                      <div className="absolute inset-0 w-[23px] bg-[#3E5251] rounded-br-[24px]"></div>
                     </div>
                     {/* Bottom inner-curve */}
                     <div className="absolute -bottom-[24px] right-0 w-[24px] h-[24px] overflow-hidden pointer-events-none">
-                      <div className="absolute inset-0 bg-[#E0F0E9]"></div>
-                      <div className="absolute inset-0 bg-[#3E5251] rounded-tr-[24px]"></div>
+                      <div className="absolute inset-0 bg-[#EAF7EF]"></div>
+                      <div className="absolute inset-0 w-[23px] bg-[#3E5251] rounded-tr-[24px]"></div>
                     </div>
                   </div>
                 )}

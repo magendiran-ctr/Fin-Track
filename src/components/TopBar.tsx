@@ -40,7 +40,7 @@ export default function TopBar({
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-gradient-to-r from-[#E0F0E9] via-[#E0F0E9] to-[#E0F0E9]">
+    <header className="sticky top-0 z-30 bg-gradient-to-r from-[#EAF7EF] via-[#EAF7EF] to-[#EAF7EF]">
       <div className="flex items-center justify-between h-16 px-4 lg:px-6 gap-3">
         {/* Mobile menu toggle */}
         <div className="flex items-center gap-3 lg:hidden">

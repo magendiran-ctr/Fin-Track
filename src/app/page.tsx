@@ -143,12 +143,12 @@ function HomeContent() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-[#E0F0E9] dark:bg-slate-900">
+    <div className="min-h-screen bg-[#EAF7EF] dark:bg-slate-700">
       {/* Sidebar */}
       <Sidebar isMobileOpen={isMobileOpen} setIsMobileOpen={setIsMobileOpen} />
 
       {/* Main content area */}
-      <div className="lg:ml-72">
+      <div className="lg:ml-[280px]">
         {/* Top Bar */}
         <TopBar
           isMobileOpen={isMobileOpen}

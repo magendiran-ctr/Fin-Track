@@ -25,7 +25,6 @@ import { Expense, EXPENSE_CATEGORIES, ExpenseCategory, CATEGORY_COLORS } from "@
 import { formatCurrency, formatDate, exportToCSV, exportToPDF } from "@/lib/utils";
 import { expensesApi } from "@/lib/api-client";
 
-// Number of expenses per page on the Expenses screen
 const ITEMS_PER_PAGE = 10;
 
 interface ExpenseListProps {
@@ -344,12 +343,14 @@ export function ExpenseList({ expenses, onEdit, onAdd, onRefresh, isLoading }: E
               </div>
 
               {/* Pagination */}
-              {totalPages > 1 && (
+              {filtered.length > 0 && (
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 sm:px-6 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Showing <span className="font-medium text-slate-700 dark:text-slate-200">{startItem}–{endItem}</span> of{" "}
-                    <span className="font-medium text-slate-700 dark:text-slate-200">{filtered.length}</span>
-                  </p>
+                  <div className="flex items-center gap-3">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Showing <span className="font-medium text-slate-700 dark:text-slate-200">{startItem}-{endItem}</span> of{" "}
+                      <span className="font-medium text-slate-700 dark:text-slate-200">{filtered.length}</span>
+                    </p>
+                  </div>
                   <div className="flex items-center gap-1">
                     {/* First */}
                     <button
@@ -373,7 +374,7 @@ export function ExpenseList({ expenses, onEdit, onAdd, onRefresh, isLoading }: E
                     {/* Page numbers */}
                     {getPageNumbers().map((page, idx) =>
                       page === "..." ? (
-                        <span key={`dots-${idx}`} className="px-1 text-xs text-slate-400">…</span>
+                        <span key={`dots-${idx}`} className="px-1 text-xs text-slate-400">...</span>
                       ) : (
                         <button
                           key={page}
@@ -387,6 +388,9 @@ export function ExpenseList({ expenses, onEdit, onAdd, onRefresh, isLoading }: E
                         </button>
                       )
                     )}
+                    <span className="ml-2 text-xs text-slate-500 dark:text-slate-400">
+                      {safeCurrentPage}/{totalPages}
+                    </span>
 
                     {/* Next */}
                     <button
@@ -457,10 +461,10 @@ function ExpenseRow({ expense, onEdit, onDelete, isDeleting }: ExpenseRowProps) 
         </div>
         <div className="flex items-center gap-2 mt-0.5">
           <p className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500">{formatDate(expense.date)}</p>
-          <span className="sm:hidden text-[10px] text-slate-400">•</span>
+          <span className="sm:hidden text-[10px] text-slate-400">|</span>
           <span className="sm:hidden text-[10px] font-medium" style={{ color }}>{expense.category}</span>
           {expense.notes && (
-            <p className="hidden sm:block text-xs text-slate-400 dark:text-slate-500 truncate">· {expense.notes}</p>
+            <p className="hidden sm:block text-xs text-slate-400 dark:text-slate-500 truncate">- {expense.notes}</p>
           )}
         </div>
       </div>
@@ -501,3 +505,4 @@ function ExpenseRow({ expense, onEdit, onDelete, isDeleting }: ExpenseRowProps) 
     </motion.div>
   );
 }
+
