@@ -20,7 +20,7 @@ import { expensesApi, analyticsApi } from "@/lib/api-client";
 import { Expense, AnalyticsSummary } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
 
-type Tab = "dashboard" | "expenses" | "analytics" | "settings" | "subscription";
+type Tab = "dashboard" | "expenses" | "analytics" | "reports" | "settings" | "subscription";
 
 function HomeContent() {
   const { user, isLoading: authLoading, logout } = useAuth();
@@ -49,7 +49,7 @@ function HomeContent() {
   // Get tab from URL params
   useEffect(() => {
     const tab = searchParams.get("tab") as Tab | null;
-    if (tab && ["dashboard", "expenses", "analytics", "settings", "subscription"].includes(tab)) {
+    if (tab && ["dashboard", "expenses", "analytics", "reports", "settings", "subscription"].includes(tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -141,6 +141,29 @@ function HomeContent() {
   }
 
   if (!user) return null;
+
+  const reportStats = {
+    totalSpent: analytics?.totalAmount || 0,
+    totalTransactions: analytics?.totalExpenses || expenses.length,
+    averageExpense: analytics?.averageExpense || 0,
+    topCategory: analytics?.topCategory || "N/A",
+  };
+
+  const insights = [
+    `You recorded ${reportStats.totalTransactions} transactions in the selected period.`,
+    reportStats.topCategory !== "N/A"
+      ? `Your highest spending category is ${reportStats.topCategory}.`
+      : "No dominant category yet. Add more expenses for stronger insights.",
+    reportStats.averageExpense > 0
+      ? `Your average expense is ${formatCurrency(reportStats.averageExpense)} per transaction.`
+      : "Average expense will appear after your first transaction.",
+  ];
+
+  const recommendations = [
+    "Set a monthly cap for your top category to keep spending controlled.",
+    "Review recurring payments weekly and cancel unused subscriptions.",
+    "Track daily expenses consistently to improve next month’s forecast.",
+  ];
 
   return (
     <div className="min-h-screen bg-[#EAF7EF] dark:bg-slate-700">
@@ -267,6 +290,88 @@ function HomeContent() {
                       </div>
                     </motion.div>
                   )}
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === "reports" && (
+              <motion.div
+                key="reports"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="space-y-6">
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100">Reports</h2>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                      Snapshot of your spending performance with practical actions.
+                    </p>
+                  </motion.div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {[
+                      { label: "Total Spent", value: formatCurrency(reportStats.totalSpent) },
+                      { label: "Transactions", value: String(reportStats.totalTransactions) },
+                      { label: "Average Expense", value: formatCurrency(reportStats.averageExpense) },
+                      { label: "Top Category", value: reportStats.topCategory },
+                    ].map((item, index) => (
+                      <motion.div
+                        key={item.label}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.06 * index }}
+                        className="glass card p-5"
+                      >
+                        <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">{item.label}</p>
+                        <p className="mt-2 text-xl font-bold text-slate-800 dark:text-slate-100">{item.value}</p>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.15 }}
+                      className="glass card p-6"
+                    >
+                      <div className="flex items-center gap-2 mb-4">
+                        <Receipt className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                        <h3 className="font-semibold text-slate-800 dark:text-slate-100">Report Highlights</h3>
+                      </div>
+                      <div className="space-y-3">
+                        {insights.map((insight, index) => (
+                          <p key={index} className="text-sm text-slate-600 dark:text-slate-300">
+                            {index + 1}. {insight}
+                          </p>
+                        ))}
+                      </div>
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                      className="glass card p-6"
+                    >
+                      <div className="flex items-center gap-2 mb-4">
+                        <TrendingUp className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+                        <h3 className="font-semibold text-slate-800 dark:text-slate-100">Recommended Actions</h3>
+                      </div>
+                      <div className="space-y-3">
+                        {recommendations.map((tip, index) => (
+                          <p key={index} className="text-sm text-slate-600 dark:text-slate-300">
+                            {index + 1}. {tip}
+                          </p>
+                        ))}
+                      </div>
+                    </motion.div>
+                  </div>
                 </div>
               </motion.div>
             )}
