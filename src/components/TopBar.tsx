@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
-  Moon,
-  Sun,
   Menu,
   X,
   LogOut,
@@ -30,14 +28,13 @@ export default function TopBar({
   onFilterChange
 }: TopBarProps) {
   const { user, logout } = useAuth();
-  const [isDark, setIsDark] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
 
-  const toggleDarkMode = () => {
-    setIsDark(!isDark);
-    document.documentElement.classList.toggle("dark");
-  };
+  // Force light mode on mount to ensure no dark mode class remains
+  React.useEffect(() => {
+    document.documentElement.classList.remove("dark");
+  }, []);
 
   return (
     <header className="sticky top-0 z-30 bg-gradient-to-r from-[#EAF7EF] via-[#EAF7EF] to-[#EAF7EF]">
@@ -46,7 +43,7 @@ export default function TopBar({
         <div className="flex items-center gap-3 lg:hidden">
           <button
             onClick={() => setIsMobileOpen(!isMobileOpen)}
-            className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors btn-press"
+            className="p-2 rounded-xl hover:bg-slate-100 transition-colors btn-press"
             aria-label="Toggle menu"
           >
             {isMobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -72,14 +69,6 @@ export default function TopBar({
           {/* Date Range Picker */}
           <DateRangePicker filters={filters} onFilterChange={onFilterChange} />
 
-          {/* Theme Toggle */}
-          <button
-            onClick={toggleDarkMode}
-            className="p-2 rounded-xl bg-slate-100/70 border border-slate-200/80"
-          >
-            {isDark ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5 text-slate-600" />}
-          </button>
-
           {/* User Profile */}
           <div className="relative">
             <button
@@ -104,10 +93,10 @@ export default function TopBar({
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="absolute right-0 mt-2 w-56 rounded-xl glass card p-2 z-50 shadow-xl border border-slate-200/50 dark:border-slate-700/50"
+                    className="absolute right-0 mt-2 w-56 rounded-xl glass card p-2 z-50 shadow-xl border border-slate-200/50"
                   >
-                    <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800 mb-1">
-                      <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{user?.name || "User"}</p>
+                    <div className="px-3 py-2 border-b border-slate-100 mb-1">
+                      <p className="text-sm font-semibold text-slate-800">{user?.name || "User"}</p>
                       <p className="text-xs text-slate-500 truncate">{user?.email}</p>
                     </div>
                     <button
@@ -115,7 +104,7 @@ export default function TopBar({
                         setShowProfileModal(true);
                         setShowUserDropdown(false);
                       }}
-                      className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                      className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-slate-100 transition-colors"
                     >
                       <UserIcon className="w-4 h-4" />
                       View Profile
@@ -125,7 +114,7 @@ export default function TopBar({
                         logout();
                         setShowUserDropdown(false);
                       }}
-                      className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+                      className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 transition-colors"
                     >
                       <LogOut className="w-4 h-4" />
                       Logout
@@ -153,7 +142,7 @@ export default function TopBar({
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-sm glass card shadow-2xl rounded-2xl overflow-hidden bg-white dark:bg-slate-900"
+              className="relative w-full max-w-sm glass card shadow-2xl rounded-2xl overflow-hidden bg-white"
             >
               {/* Header */}
               <div className="relative h-24 gradient-primary">
@@ -167,7 +156,7 @@ export default function TopBar({
 
               {/* Avatar */}
               <div className="absolute top-12 left-1/2 -translate-x-1/2">
-                <div className="w-24 h-24 rounded-full border-4 border-white dark:border-slate-900 bg-white dark:bg-slate-800 flex items-center justify-center shadow-lg overflow-hidden gradient-secondary text-white text-3xl font-bold">
+                <div className="w-24 h-24 rounded-full border-4 border-white bg-white flex items-center justify-center shadow-lg overflow-hidden gradient-secondary text-white text-3xl font-bold">
                   {user?.avatar ? (
                     <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
@@ -178,27 +167,27 @@ export default function TopBar({
 
               {/* Details */}
               <div className="pt-14 pb-6 px-6 text-center">
-                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-1">
+                <h3 className="text-xl font-bold text-slate-800 mb-1">
                   {user?.name || "User"}
                 </h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                <p className="text-sm text-slate-500 mb-6">
                   {user?.email}
                 </p>
 
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-                    <span className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <span className="text-sm text-slate-500 flex items-center gap-2">
                       <UserIcon className="w-4 h-4" /> Account Type
                     </span>
-                    <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                    <span className="text-sm font-medium text-slate-700">
                       Free Plan
                     </span>
                   </div>
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-                    <span className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <span className="text-sm text-slate-500 flex items-center gap-2">
                       <TrendingUp className="w-4 h-4" /> Member Since
                     </span>
-                    <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                    <span className="text-sm font-medium text-slate-700">
                       {new Date().toLocaleDateString("en-IN", { month: "short", year: "numeric" })}
                     </span>
                   </div>
@@ -206,7 +195,7 @@ export default function TopBar({
 
                 <button
                   onClick={() => setShowProfileModal(false)}
-                  className="w-full mt-6 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                  className="w-full mt-6 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-medium hover:bg-slate-200 transition-colors"
                 >
                   Close
                 </button>

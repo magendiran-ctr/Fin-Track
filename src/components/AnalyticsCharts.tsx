@@ -141,66 +141,92 @@ export function AnalyticsCharts({ analytics, isLoading }: AnalyticsChartsProps) 
 
       {/* Category Breakdown Chart */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
+        initial={{ opacity: 0, y: 30, rotateX: 10 }}
+        animate={{ opacity: 1, y: 0, rotateX: 0 }}
+        whileHover={{ 
+          rotateX: 4, 
+          rotateY: -4, 
+          scale: 1.01,
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.15)"
+        }}
+        transition={{ 
+          duration: 0.8, 
+          delay: 0.1,
+          rotateX: { type: "spring", stiffness: 100, damping: 20 },
+          rotateY: { type: "spring", stiffness: 100, damping: 20 }
+        }}
+        style={{ transformStyle: "preserve-3d" }}
       >
-        <Card padding="lg">
+        <Card padding="lg" className="h-full overflow-hidden">
           <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100 mb-1">Category Breakdown</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Where your money goes</p>
           {categoryChartData.length > 0 ? (
             <div className="flex items-center gap-4">
-              <div className="chart-container w-[55%]">
-                <ResponsiveContainer width="100%" height={200}>
+              <motion.div 
+                className="chart-container w-[55%]"
+                initial={{ scale: 0.8, rotate: -45, opacity: 0 }}
+                animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
+                style={{ transform: "translateZ(30px)" }}
+              >
+                <ResponsiveContainer width="100%" height={220}>
                   <PieChart>
                     <Pie
                       data={categoryChartData}
                       cx="50%"
                       cy="50%"
-                      innerRadius={55}
-                      outerRadius={85}
-                      paddingAngle={3}
+                      innerRadius={60}
+                      outerRadius={90}
+                      paddingAngle={4}
                       dataKey="value"
-                      animationDuration={1500}
+                      stroke="none"
+                      animationDuration={1800}
                       animationEasing="ease-out"
                     >
                       {categoryChartData.map((entry, index) => (
                         <Cell
                           key={`cell-${index}`}
                           fill={entry.color}
-                          strokeWidth={0}
+                          style={{ filter: "drop-shadow(0px 4px 6px rgba(0,0,0,0.1))" }}
                         />
                       ))}
                     </Pie>
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: "rgba(255, 255, 255, 0.95)",
-                        backdropFilter: "blur(8px)",
-                        border: "1px solid rgba(226, 232, 240, 0.8)",
-                        borderRadius: "12px",
-                        boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
+                        backgroundColor: "rgba(255, 255, 255, 0.98)",
+                        backdropFilter: "blur(12px)",
+                        border: "none",
+                        borderRadius: "16px",
+                        boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
                         fontSize: "12px",
+                        padding: "10px 14px",
                       }}
+                      itemStyle={{ color: "#334155", fontWeight: "600" }}
                       formatter={(value: number | undefined) => [formatCurrency(value ?? 0), "Amount"]}
                     />
                   </PieChart>
                 </ResponsiveContainer>
-              </div>
-              <div className="flex-1 space-y-2">
+              </motion.div>
+              <div className="flex-1 space-y-2.5">
                 {categoryChartData.slice(0, 5).map((item, index) => (
                   <motion.div
                     key={item.name}
-                    initial={{ opacity: 0, x: 10 }}
+                    initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2 + index * 0.05 }}
-                    className="flex items-center gap-2"
+                    transition={{ delay: 0.5 + index * 0.1 }}
+                    className="flex items-center gap-2 group cursor-default"
+                    style={{ transform: "translateZ(20px)" }}
                   >
                     <div
-                      className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                      className="w-3 h-3 rounded-full flex-shrink-0 shadow-sm"
                       style={{ backgroundColor: item.color }}
                     />
-                    <span className="text-xs text-slate-600 dark:text-slate-300 flex-1 truncate">{item.name}</span>
-                    {item.percentage.toFixed(0)}%
+                    <span className="text-xs font-medium text-slate-600 dark:text-slate-300 flex-1 truncate group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                      {item.name}
+                    </span>
+                    <span className="text-[11px] font-bold text-slate-400 group-hover:text-teal-600 transition-colors">
+                      {item.percentage.toFixed(0)}%
+                    </span>
                   </motion.div>
                 ))}
               </div>
